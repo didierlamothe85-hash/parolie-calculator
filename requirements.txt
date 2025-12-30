@@ -1,0 +1,13 @@
+# Calculatrice Casino - Requirements
+# Python 3.7+
+
+# Tkinter est inclus avec Python par défaut sur Windows/Mac
+# Sur Linux : sudo apt-get install python3-tk
+
+# Aucune dépendance externe requise
+# L'application utilise uniquement la bibliothèque standard Python
+
+# Pour développement (optionnel)
+# pylint>=2.15.0
+# black>=22.0.0
+# pytest>=7.0.0
