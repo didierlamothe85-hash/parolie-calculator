@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Calculatrice v3.9.2 â€” PRO
+Calculatrice v3.9.2 — PRO
 NOUVELLES MODIFICATIONS v3.9.2-PRO-FINAL :
-- âœ… Bouton S ajoutÃ© dans l'historique (avant EXP)
-- âœ… Moyennes temps et impact sur les en-tÃªtes de jour
-- âœ… Taille de la corbeille rÃ©duite (12pt â†’ 10pt)
-- âœ… Fix "Oui" pour dÃ©marrer nouvelle session immÃ©diatement
-- âœ… Hauteur fenÃªtre historique bloquÃ©e (= hauteur calculatrice complÃ¨te)
-- âœ… Affichage OBJ en temps rÃ©el avant de cliquer sur GO
+- ✅ Bouton S ajouté dans l'historique (avant EXP)
+- ✅ Moyennes temps et impact sur les en-têtes de jour
+- ✅ Taille de la corbeille réduite (12pt → 10pt)
+- ✅ Fix "Oui" pour démarrer nouvelle session immédiatement
+- ✅ Hauteur fenêtre historique bloquée (= hauteur calculatrice complète)
+- ✅ Affichage OBJ en temps réel avant de cliquer sur GO
 """
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -16,7 +16,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from collections import defaultdict
 
-APP_VERSION = "3.9.3-PRO-UNLIMITED"
+APP_VERSION = "3.9.2-PRO-FINAL"
 
 # =================== CONSTANTES UI ===================
 WIN_W = 246
@@ -60,9 +60,9 @@ OBJ_PCT_STEP = 0.1
 
 EXPORT_W = 120
 
-# =================== DIMENSIONS FENÃŠTRE HISTORIQUE ===================
-HISTORY_WINDOW_WIDTH = 409    # Largeur fixÃ©e
-HISTORY_WINDOW_HEIGHT = 439   # Hauteur fixÃ©e
+# =================== DIMENSIONS FENÊTRE HISTORIQUE ===================
+HISTORY_WINDOW_WIDTH = 409    # Largeur fixée
+HISTORY_WINDOW_HEIGHT = 439   # Hauteur fixée
 # ======================================================================
 
 def ceil_0_1(x):
@@ -128,7 +128,7 @@ class HistoryWindow(tk.Toplevel):
             pass
 
         # MODIFICATION 5 : Dimensions fixes (409x439)
-        self.resizable(False, False)  # VERROUILLÃ‰
+        self.resizable(False, False)  # VERROUILLÉ
         
         w = HISTORY_WINDOW_WIDTH   # Taille initiale
         h = HISTORY_WINDOW_HEIGHT  # Taille initiale
@@ -136,14 +136,14 @@ class HistoryWindow(tk.Toplevel):
         y = app.winfo_y()
         self.geometry(f"{w}x{h}+{x}+{y}")
 
-        # Header avec titre + boutons EXP, LC et EFFACER - ALIGNÃ‰S PAR PADDING FIXE
+        # Header avec titre + boutons EXP, LC et EFFACER - ALIGNÉS PAR PADDING FIXE
         header = tk.Frame(self, bg=DARK_BG)
         header.pack(side="top", fill="x", padx=6, pady=(6, 3))
         
-        tk.Label(header, text="ðŸ“Š Historique des sessions", bg=DARK_BG, fg="#CCCC66",
+        tk.Label(header, text="📊 Historique des sessions", bg=DARK_BG, fg="#CCCC66",
                 font=("Segoe UI", 11, "bold")).pack(side="left")
         
-        # Frame pour les 3 boutons cÃ´te Ã  cÃ´te
+        # Frame pour les 3 boutons côte à côte
         buttons_group = tk.Frame(header, bg=DARK_BG)
         buttons_group.pack(side="right", padx=0)
         
@@ -188,18 +188,18 @@ class HistoryWindow(tk.Toplevel):
         self.filter_combo.pack(side="left", padx=1)
         self.filter_combo.bind('<<ComboboxSelected>>', lambda e: self.refresh_list())
         
-        tk.Label(filter_frame, text="ðŸ“…", bg=DARK_BG, fg="#aaa",
+        tk.Label(filter_frame, text="📅", bg=DARK_BG, fg="#aaa",
                 font=("Segoe UI", 8)).pack(side="left", padx=(4, 1))
         
-        self.period_var = tk.StringVar(value="Toutes les pÃ©riodes")
+        self.period_var = tk.StringVar(value="Toutes les périodes")
         self.period_combo = ttk.Combobox(filter_frame, textvariable=self.period_var,
                                         state='readonly', width=13, font=("Segoe UI", 8))
-        self.period_combo['values'] = ["Toutes les pÃ©riodes", "Derniers 7 jours", 
+        self.period_combo['values'] = ["Toutes les périodes", "Derniers 7 jours", 
                                         "Derniers 30 jours", "Derniers 90 jours"]
         self.period_combo.pack(side="left", padx=1)
         self.period_combo.bind('<<ComboboxSelected>>', lambda e: self.refresh_list())
         
-        tk.Label(filter_frame, text="ðŸ”", bg=DARK_BG, fg="#aaa",
+        tk.Label(filter_frame, text="🔍", bg=DARK_BG, fg="#aaa",
                 font=("Segoe UI", 8)).pack(side="left", padx=(4, 1))
         
         self.search_var = tk.StringVar()
@@ -227,7 +227,7 @@ class HistoryWindow(tk.Toplevel):
             self.canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
         self.canvas.bind_all("<MouseWheel>", _on_wheel)
 
-        # Ã‰tat des jours repliÃ©s/dÃ©pliÃ©s (par dÃ©faut tout repliÃ©)
+        # État des jours repliés/dépliés (par défaut tout replié)
         self.day_expanded = {}  # {jour: True/False}
 
         # Afficher les dimensions dans la console
@@ -235,12 +235,12 @@ class HistoryWindow(tk.Toplevel):
         
         def _on_configure_with_display(event=None):
             self._on_window_configure(event)
-            # Afficher seulement si la taille a changÃ©
+            # Afficher seulement si la taille a changé
             w = self.winfo_width()
             h = self.winfo_height()
             if (w, h) != self._last_size and w > 1 and h > 1:
                 self._last_size = (w, h)
-                print(f"ðŸ“ DIMENSIONS HISTORIQUE : Largeur={w} | Hauteur={h}")
+                print(f"📐 DIMENSIONS HISTORIQUE : Largeur={w} | Hauteur={h}")
         
         self.bind("<Configure>", _on_configure_with_display)
 
@@ -251,15 +251,15 @@ class HistoryWindow(tk.Toplevel):
         self.canvas.itemconfig(self.canvas_window, width=self.canvas.winfo_width())
 
     def open_casino_list(self):
-        """Ouvre la fenÃªtre de liste des casinos"""
+        """Ouvre la fenêtre de liste des casinos"""
         CasinoListWindow(self.app)
 
     def open_stats(self):
-        """Ouvre la fenÃªtre des statistiques"""
+        """Ouvre la fenêtre des statistiques"""
         self.app.open_stats()
 
     def update_filter_combo(self):
-        """Met Ã  jour la liste des casinos dans le filtre"""
+        """Met à jour la liste des casinos dans le filtre"""
         casino_names = ["Tous les casinos"] + [c['name'] for c in self.app.casinos if c['name'].strip()]
         self.filter_combo['values'] = casino_names
 
@@ -273,7 +273,7 @@ class HistoryWindow(tk.Toplevel):
         filter_period = self.period_var.get()
         search_text = self.search_var.get().strip().lower()
         
-        # Calcul de la pÃ©riode
+        # Calcul de la période
         now = time.time()
         period_cutoff = None
         if filter_period == "Derniers 7 jours":
@@ -295,7 +295,7 @@ class HistoryWindow(tk.Toplevel):
             for sess_idx, s in enumerate(casino.get("sessions", [])):
                 ts = s.get("start_ts") or s.get("end_ts") or 0
                 
-                # Filtre pÃ©riode
+                # Filtre période
                 if period_cutoff and ts < period_cutoff:
                     continue
                 
@@ -310,7 +310,7 @@ class HistoryWindow(tk.Toplevel):
         all_sessions.sort(key=lambda x: x['timestamp'], reverse=True)
 
         if not all_sessions:
-            tk.Label(self.scroll_frame, text="(aucune session trouvÃ©e)", 
+            tk.Label(self.scroll_frame, text="(aucune session trouvée)", 
                     bg=DARK_BG, fg="#888", font=("Segoe UI", 12)).pack(pady=20)
             return
 
@@ -326,47 +326,47 @@ class HistoryWindow(tk.Toplevel):
         for day_idx, day in enumerate(days_seen):
             if day_idx > 0:
                 sep = tk.Frame(self.scroll_frame, bg=LINE_GREY, height=2)
-                sep.pack(fill="x", pady=(6, 6))  # RÃ©duit encore
+                sep.pack(fill="x", pady=(6, 6))  # Réduit encore
 
-            # MODIFICATION 2 : Moyennes sur en-tÃªte de jour
+            # MODIFICATION 2 : Moyennes sur en-tête de jour
             day_sessions = by_day[day]
             total_duration = sum(s['session'].get('duration', 0) for s in day_sessions)
             total_impact = sum(s['session'].get('impact_pct', 0.0) for s in day_sessions)
             avg_duration = total_duration / len(day_sessions) if day_sessions else 0
             avg_impact = total_impact / len(day_sessions) if day_sessions else 0.0
             
-            # Par dÃ©faut, les jours sont repliÃ©s
+            # Par défaut, les jours sont repliés
             if day not in self.day_expanded:
                 self.day_expanded[day] = False
             
             is_expanded = self.day_expanded[day]
-            arrow = "â–¼" if is_expanded else "â–¶"
+            arrow = "▼" if is_expanded else "▶"
             
             day_header = tk.Frame(self.scroll_frame, bg="#2A2A2A", bd=1, relief="raised", cursor="hand2")
             day_header.pack(fill="x", pady=(0, 2))
             
-            # Frame interne pour gÃ©rer l'alignement
+            # Frame interne pour gérer l'alignement
             inner_frame = tk.Frame(day_header, bg="#2A2A2A")
             inner_frame.pack(fill="x", padx=6, pady=3)
             
-            # FlÃ¨che cliquable Ã  gauche
+            # Flèche cliquable à gauche
             arrow_label = tk.Label(inner_frame, text=arrow, bg="#2A2A2A", fg=WIN_YELLOW,
                                    font=("Segoe UI", 12, "bold"), cursor="hand2")
             arrow_label.pack(side="left", padx=(0, 8))
             
-            # Texte de l'en-tÃªte
-            header_text = f"Jour {day}  â€”  Moy: {fmt_time(avg_duration)} | Impact: {avg_impact:.1f}%"
+            # Texte de l'en-tête
+            header_text = f"Jour {day}  —  Moy: {fmt_time(avg_duration)} | Impact: {avg_impact:.1f}%"
             header_label = tk.Label(inner_frame, text=header_text, bg="#2A2A2A", fg=WIN_YELLOW,
                                    font=("Segoe UI", 10, "bold"), cursor="hand2")
             header_label.pack(side="left", anchor="w")
             
-            # Corbeille pour supprimer tout le jour - alignÃ©e Ã  droite
-            trash_day_label = tk.Label(inner_frame, text="ðŸ—‘ï¸", bg="#2A2A2A", fg="#fff",
+            # Corbeille pour supprimer tout le jour - alignée à droite
+            trash_day_label = tk.Label(inner_frame, text="🗑️", bg="#2A2A2A", fg="#fff",
                                       font=("Segoe UI", 10), cursor="hand2")
             trash_day_label.pack(side="right", padx=(3, 0))
             trash_day_label.bind("<Button-1>", lambda e, d=day: self.delete_day(d))
             
-            # Fonction pour basculer l'Ã©tat
+            # Fonction pour basculer l'état
             def toggle_day(d=day):
                 self.day_expanded[d] = not self.day_expanded[d]
                 self.refresh_list()
@@ -376,7 +376,7 @@ class HistoryWindow(tk.Toplevel):
             arrow_label.bind("<Button-1>", lambda e, d=day: toggle_day(d))
             header_label.bind("<Button-1>", lambda e, d=day: toggle_day(d))
 
-            # Afficher les sessions seulement si le jour est dÃ©pliÃ©
+            # Afficher les sessions seulement si le jour est déplié
             if is_expanded:
                 for item in by_day[day]:
                     self._create_session_row(item)
@@ -386,7 +386,7 @@ class HistoryWindow(tk.Toplevel):
         cname = item['casino_name']
         
         row_frame = tk.Frame(self.scroll_frame, bg="#252525", bd=1, relief="solid")
-        row_frame.pack(fill="x", pady=1, padx=2)  # pady rÃ©duit de 2 Ã  1
+        row_frame.pack(fill="x", pady=1, padx=2)  # pady réduit de 2 à 1
 
         start = fmt_time_only(s.get("start_ts"))
         end = fmt_time_only(s.get("end_ts"))
@@ -394,7 +394,7 @@ class HistoryWindow(tk.Toplevel):
         impact = s.get('impact_pct', 0.0)
         profit = s.get('profit', 0.0)
         impacts_detail = s.get('impacts_detail', [0.0, 0.0, 0.0])
-        num_mode = s.get('num_mode', 18)  # Par dÃ©faut 18N si pas enregistrÃ©
+        num_mode = s.get('num_mode', 18)  # Par défaut 18N si pas enregistré
 
         main_row = tk.Frame(row_frame, bg="#252525")
         main_row.pack(fill="x", padx=3, pady=2)
@@ -403,7 +403,7 @@ class HistoryWindow(tk.Toplevel):
         tk.Label(main_row, text=cname[:14], bg="#252525", fg=WIN_YELLOW,
                 font=("Segoe UI", 9, "bold"), width=12, anchor="w").pack(side="left", padx=(0, 2))
 
-        # DÃ©but
+        # Début
         tk.Label(main_row, text=start, bg="#252525", fg="#ddd",
                 font=("Segoe UI", 9), width=5, anchor="center").pack(side="left", padx=1)
 
@@ -411,7 +411,7 @@ class HistoryWindow(tk.Toplevel):
         tk.Label(main_row, text=end, bg="#252525", fg="#ddd",
                 font=("Segoe UI", 9), width=5, anchor="center").pack(side="left", padx=1)
 
-        # DurÃ©e
+        # Durée
         tk.Label(main_row, text=dur, bg="#252525", fg="#ddd",
                 font=("Segoe UI", 9), width=6, anchor="center").pack(side="left", padx=1)
 
@@ -427,33 +427,33 @@ class HistoryWindow(tk.Toplevel):
         tk.Label(main_row, text=f"{num_mode}N", bg="#252525", fg=WIN_YELLOW,
                 font=("Segoe UI", 9, "bold"), width=4, anchor="center").pack(side="left", padx=1)
 
-        # Corbeille - collÃ©e au mode
-        trash_label = tk.Label(main_row, text="ðŸ—‘ï¸", bg="#252525", fg="#fff",
-                              font=("Segoe UI", 10), cursor="hand2")  # MODIFICATION 3: RÃ©duit
-        trash_label.pack(side="left", padx=(3, 0))  # 3px Ã  gauche, 0px Ã  droite
+        # Corbeille - collée au mode
+        trash_label = tk.Label(main_row, text="🗑️", bg="#252525", fg="#fff",
+                              font=("Segoe UI", 10), cursor="hand2")  # MODIFICATION 3: Réduit
+        trash_label.pack(side="left", padx=(3, 0))  # 3px à gauche, 0px à droite
         trash_label.bind("<Button-1>", lambda e: self.delete_session(item))
 
-        # Ligne(s) dÃ©tails sessions - 3 par ligne avec alignement en colonnes
+        # Ligne(s) détails sessions - 3 par ligne avec alignement en colonnes
         impacts_detail = s.get('impacts_detail', [0.0, 0.0, 0.0])
         num_sessions = len(impacts_detail)
         
         # Afficher par groupes de 3 avec grid pour alignement parfait
-        for row_idx in range((num_sessions + 2) // 3):  # Nombre de lignes nÃ©cessaires
+        for row_idx in range((num_sessions + 2) // 3):  # Nombre de lignes nécessaires
             detail_row = tk.Frame(row_frame, bg="#252525")
             detail_row.pack(fill="x", padx=6, pady=(0, 4 if row_idx == (num_sessions + 2) // 3 - 1 else 2))
             
-            # PrÃ©fixe "â””â”€"
-            tk.Label(detail_row, text="  â””â”€ ", bg="#252525", fg="#888",
+            # Préfixe "└─"
+            tk.Label(detail_row, text="  └─ ", bg="#252525", fg="#888",
                     font=("Segoe UI", 9)).pack(side="left")
             
             # Frame pour les 3 colonnes avec grid
             grid_frame = tk.Frame(detail_row, bg="#252525")
             grid_frame.pack(side="left")
             
-            # Calculer la largeur de rÃ©fÃ©rence basÃ©e sur "S10 -10.9%" (le plus large possible)
-            # S10 (3 car) + espace rÃ©duit + "-10.9%" (6 car) = environ 9 caractÃ¨res
+            # Calculer la largeur de référence basée sur "S10 -10.9%" (le plus large possible)
+            # S10 (3 car) + espace réduit + "-10.9%" (6 car) = environ 9 caractères
             # On utilise minsize pour forcer une largeur minimale par colonne
-            col_width = 70  # Largeur en pixels basÃ©e sur "S10 -10.9%"
+            col_width = 70  # Largeur en pixels basée sur "S10 -10.9%"
             
             for col in range(3):
                 grid_frame.grid_columnconfigure(col, minsize=col_width)
@@ -471,7 +471,7 @@ class HistoryWindow(tk.Toplevel):
                 tk.Label(session_frame, text=f"S{i+1}", bg="#252525", fg=ACCENT_BLUE,
                         font=("Segoe UI", 9, "bold")).pack(side="left")
                 
-                # Espace rÃ©duit entre label et pourcentage (2 espaces au lieu de 4-5)
+                # Espace réduit entre label et pourcentage (2 espaces au lieu de 4-5)
                 tk.Label(session_frame, text="  ", bg="#252525",
                         font=("Segoe UI", 9)).pack(side="left")
                 
@@ -485,7 +485,7 @@ class HistoryWindow(tk.Toplevel):
         
         msg = (f"Casino: {cname}\n" f"Date: {fmt_dt(s.get('start_ts'))}\n"
                f"Profit: {s.get('profit', 0.0):.1f} $\n" f"Impact: {s.get('impact_pct', 0.0):.1f}%\n\n"
-               f"âš ï¸ Cette action est irrÃ©versible !\n" f"Les statistiques seront recalculÃ©es.")
+               f"⚠️ Cette action est irréversible !\n" f"Les statistiques seront recalculées.")
         
         if messagebox.askyesno("Supprimer cette session ?", msg):
             casino_idx = item['casino_idx']
@@ -498,11 +498,11 @@ class HistoryWindow(tk.Toplevel):
             if getattr(self.app, 'stats_win', None) and self.app.stats_win.winfo_exists():
                 self.app.stats_win.update_stats_ui()
             
-            messagebox.showinfo("âœ… Session supprimÃ©e", 
-                              "Les statistiques ont Ã©tÃ© recalculÃ©es automatiquement.")
+            messagebox.showinfo("✅ Session supprimée", 
+                              "Les statistiques ont été recalculées automatiquement.")
 
     def delete_day(self, day):
-        """Supprime toutes les sessions d'un jour donnÃ©"""
+        """Supprime toutes les sessions d'un jour donné"""
         # Collecter toutes les sessions de ce jour
         sessions_to_delete = []
         for idx, casino in enumerate(self.app.casinos):
@@ -515,10 +515,10 @@ class HistoryWindow(tk.Toplevel):
             return
         
         count = len(sessions_to_delete)
-        msg = f"âš ï¸ ATTENTION âš ï¸\n\nVous allez supprimer {count} session(s) du jour {day}.\n\nCette action est IRRÃ‰VERSIBLE !\n\nÃŠtes-vous sÃ»r ?"
+        msg = f"⚠️ ATTENTION ⚠️\n\nVous allez supprimer {count} session(s) du jour {day}.\n\nCette action est IRRÉVERSIBLE !\n\nÊtes-vous sûr ?"
         
         if messagebox.askyesno("Supprimer tout le jour ?", msg):
-            # Supprimer en ordre inverse pour ne pas dÃ©caler les indices
+            # Supprimer en ordre inverse pour ne pas décaler les indices
             for casino_idx, session_idx in sorted(sessions_to_delete, reverse=True):
                 del self.app.casinos[casino_idx]['sessions'][session_idx]
             
@@ -528,19 +528,19 @@ class HistoryWindow(tk.Toplevel):
             if getattr(self.app, 'stats_win', None) and self.app.stats_win.winfo_exists():
                 self.app.stats_win.update_stats_ui()
             
-            messagebox.showinfo("âœ… Jour supprimÃ©", 
-                              f"{count} session(s) supprimÃ©e(s). Les statistiques ont Ã©tÃ© recalculÃ©es.")
+            messagebox.showinfo("✅ Jour supprimé", 
+                              f"{count} session(s) supprimée(s). Les statistiques ont été recalculées.")
 
 
     def delete_all_sessions(self):
-        """Supprime toutes les sessions aprÃ¨s confirmation"""
+        """Supprime toutes les sessions après confirmation"""
         total = sum(len(c['sessions']) for c in self.app.casinos)
         
         if total == 0:
-            messagebox.showinfo("Info", "Aucune session Ã  supprimer.")
+            messagebox.showinfo("Info", "Aucune session à supprimer.")
             return
         
-        msg = f"âš ï¸ ATTENTION âš ï¸\n\nVous allez supprimer {total} session(s).\n\nCette action est IRRÃ‰VERSIBLE !\n\nÃŠtes-vous sÃ»r ?"
+        msg = f"⚠️ ATTENTION ⚠️\n\nVous allez supprimer {total} session(s).\n\nCette action est IRRÉVERSIBLE !\n\nÊtes-vous sûr ?"
         
         if messagebox.askyesno("Tout effacer ?", msg):
             for c in self.app.casinos:
@@ -552,8 +552,8 @@ class HistoryWindow(tk.Toplevel):
             if getattr(self.app, 'stats_win', None) and self.app.stats_win.winfo_exists():
                 self.app.stats_win.update_stats_ui()
             
-            messagebox.showinfo("âœ… Toutes les sessions supprimÃ©es", 
-                              "Toutes les donnÃ©es ont Ã©tÃ© effacÃ©es.")
+            messagebox.showinfo("✅ Toutes les sessions supprimées", 
+                              "Toutes les données ont été effacées.")
 
     def export_text(self):
         self.app.open_export_direct()
@@ -577,9 +577,9 @@ class StatsWindow(tk.Toplevel):
         except Exception:
             pass
 
-        # Ajuster la taille Ã  juste le contenu (Total casino uniquement)
+        # Ajuster la taille à juste le contenu (Total casino uniquement)
         w = app.winfo_width()
-        h = 200  # Hauteur rÃ©duite (juste pour le tableau stats)
+        h = 200  # Hauteur réduite (juste pour le tableau stats)
         x = max(0, app.winfo_x() - w - 10)
         y = app.winfo_y()
         self.geometry(f"{w}x{h}+{x}+{y}")
@@ -590,7 +590,7 @@ class StatsWindow(tk.Toplevel):
         
         title_row = tk.Frame(head, bg=DARK_BG)
         title_row.pack(fill="x", padx=6, pady=(6, 0))
-        tk.Label(title_row, text="ðŸ“Š Total des casinos", fg="#CCCC66", bg=DARK_BG, 
+        tk.Label(title_row, text="📊 Total des casinos", fg="#CCCC66", bg=DARK_BG, 
                 font=("Segoe UI", 10, "bold")).pack(side="left")
 
         self.total_body = tk.Frame(head, bg=DARK_BG)
@@ -610,9 +610,9 @@ class StatsWindow(tk.Toplevel):
         self._mk_row(self.total_body, 0, "temps moyen / session", self.t_avg_lbl_v)
         self._mk_row(self.total_body, 1, "moy impact bankroll %", self.t_imp_lbl_v)
         self._mk_row(self.total_body, 2, "moy impact bankroll % m/M", self.t_minmax_lbl_v)
-        self._mk_row(self.total_body, 3, "moy gain Ã  l'heure  $/H", self.t_hour_lbl_v)
+        self._mk_row(self.total_body, 3, "moy gain à l'heure  $/H", self.t_hour_lbl_v)
 
-        # PLUS DE BOUTONS (LISTE, HISTORIQUE, RESET supprimÃ©s)
+        # PLUS DE BOUTONS (LISTE, HISTORIQUE, RESET supprimés)
 
         self.update_stats_ui()
 
@@ -713,31 +713,31 @@ class SimulatorWindow(tk.Toplevel):
         except Exception:
             pass
 
-        # Dimensions pour afficher 12 mois cÃ´te Ã  cÃ´te
+        # Dimensions pour afficher 12 mois côte à côte
         w = 1227
         h = 677
         x = max(0, app.winfo_x() - (w - app.winfo_width()) // 2)
         y = max(0, app.winfo_y() - 50)
         self.geometry(f"{w}x{h}+{x}+{y}")
         
-        # Rendre la fenÃªtre redimensionnable
+        # Rendre la fenêtre redimensionnable
         self.resizable(False, False)
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        # HEADER avec contrÃ´les
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
+        # HEADER avec contrôles
+        # ═══════════════════════════════════════════════════════
         header = tk.Frame(self, bg=DARK_BG, bd=2, relief="groove")
         header.pack(side="top", fill="x", padx=6, pady=6)
 
         # Titre
         title_frame = tk.Frame(header, bg=DARK_BG)
         title_frame.pack(fill="x", padx=6, pady=(6, 8))
-        tk.Label(title_frame, text="ðŸ“… Simulateur 365 jours - Calendrier annuel", bg=DARK_BG, fg="#CCCC66",
+        tk.Label(title_frame, text="📅 Simulateur 365 jours - Calendrier annuel", bg=DARK_BG, fg="#CCCC66",
                 font=("Segoe UI", 11, "bold")).pack(side="left")
 
-        # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        # LIGNE CONTRÃ”LES : Casino + Capital + % + Date + Bouton
-        # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ─────────────────────────────────────────────────────
+        # LIGNE CONTRÔLES : Casino + Capital + % + Date + Bouton
+        # ─────────────────────────────────────────────────────
         controls = tk.Frame(header, bg=DARK_BG)
         controls.pack(fill="x", padx=6, pady=(0, 6))
 
@@ -745,8 +745,8 @@ class SimulatorWindow(tk.Toplevel):
         tk.Label(controls, text="Casino:", bg=DARK_BG, fg="#aaa",
                 font=("Segoe UI", 9)).pack(side="left", padx=(0, 4))
         
-        self.casino_var = tk.StringVar(value="SÃ©lectionner...")
-        casino_names = ["SÃ©lectionner..."] + [c['name'] for c in app.casinos if c['name'].strip()]
+        self.casino_var = tk.StringVar(value="Sélectionner...")
+        casino_names = ["Sélectionner..."] + [c['name'] for c in app.casinos if c['name'].strip()]
         self.casino_combo = ttk.Combobox(controls, textvariable=self.casino_var,
                                         values=casino_names, state='readonly',
                                         width=15, font=("Segoe UI", 9))
@@ -775,7 +775,7 @@ class SimulatorWindow(tk.Toplevel):
                                  width=5, justify="right")
         self.pct_entry.pack(side="left", padx=(0, 12))
 
-        # Date de dÃ©but
+        # Date de début
         tk.Label(controls, text="Date:", bg=DARK_BG, fg="#aaa",
                 font=("Segoe UI", 9)).pack(side="left", padx=(0, 4))
         
@@ -789,26 +789,26 @@ class SimulatorWindow(tk.Toplevel):
         self.date_combo.pack(side="left", padx=(0, 12))
 
         # Bouton SIMULER
-        btn_simulate = tk.Button(controls, text="ðŸš€ SIMULER", command=self.run_simulation,
+        btn_simulate = tk.Button(controls, text="🚀 SIMULER", command=self.run_simulation,
                                 bg=ACCENT_BLUE, fg="#fff", font=("Segoe UI", 9, "bold"),
                                 bd=2, relief="raised", cursor="hand2",
                                 activebackground="#1E90FF", activeforeground="#fff",
                                 padx=15, pady=3)
         btn_simulate.pack(side="left")
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        # ZONE RÃ‰CAPITULATIF (si simulation faite)
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
+        # ZONE RÉCAPITULATIF (si simulation faite)
+        # ═══════════════════════════════════════════════════════
         self.summary_frame = tk.Frame(self, bg="#1a1a1a", bd=2, relief="sunken")
-        # Pas affichÃ© au dÃ©part
+        # Pas affiché au départ
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        # ZONE CALENDRIER avec en-tÃªtes fixes
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
+        # ZONE CALENDRIER avec en-têtes fixes
+        # ═══════════════════════════════════════════════════════
         calendar_container = tk.Frame(self, bg=DARK_BG, bd=2, relief="sunken")
         calendar_container.pack(side="top", fill="both", expand=True, padx=6, pady=(0, 6))
 
-        # EN-TÃŠTES FIXES (ne scrollent pas)
+        # EN-TÊTES FIXES (ne scrollent pas)
         self.headers_frame = tk.Frame(calendar_container, bg=DARK_BG)
         self.headers_frame.pack(side="top", fill="x")
 
@@ -834,32 +834,32 @@ class SimulatorWindow(tk.Toplevel):
         self.canvas.bind_all("<MouseWheel>", _on_wheel)
 
         # Message initial
-        tk.Label(self.scroll_frame, text="Configurez les paramÃ¨tres et cliquez sur SIMULER",
+        tk.Label(self.scroll_frame, text="Configurez les paramètres et cliquez sur SIMULER",
                 bg=DARK_BG, fg="#888", font=("Segoe UI", 11, "italic")).pack(pady=100)
 
     def on_casino_selected(self, event=None):
-        """Callback quand un casino est sÃ©lectionnÃ© (ne fait plus rien)"""
+        """Callback quand un casino est sélectionné (ne fait plus rien)"""
         pass
 
     def run_simulation(self):
         """Lance la simulation et affiche le calendrier"""
-        # Validation des paramÃ¨tres
+        # Validation des paramètres
         try:
             capital = float(self.capital_var.get().replace(",", "."))
             pct = float(self.pct_var.get().replace(",", "."))
         except ValueError:
-            messagebox.showerror("Erreur", "Capital et Pourcentage doivent Ãªtre des nombres valides!")
+            messagebox.showerror("Erreur", "Capital et Pourcentage doivent être des nombres valides!")
             return
 
         if capital <= 0:
-            messagebox.showerror("Erreur", "Le capital doit Ãªtre positif!")
+            messagebox.showerror("Erreur", "Le capital doit être positif!")
             return
         
         if pct <= 0 or pct > 100:
-            messagebox.showerror("Erreur", "Le pourcentage doit Ãªtre entre 0 et 100!")
+            messagebox.showerror("Erreur", "Le pourcentage doit être entre 0 et 100!")
             return
 
-        # Date de dÃ©but
+        # Date de début
         date_str = self.date_var.get()
         if date_str == "Aujourd'hui":
             start_date = datetime.now()
@@ -906,16 +906,16 @@ class SimulatorWindow(tk.Toplevel):
         return results
 
     def display_calendar(self, results, initial_capital, pct, start_date):
-        """Affiche le calendrier en grille 12 colonnes avec en-tÃªtes fixes"""
-        # Effacer contenu prÃ©cÃ©dent
+        """Affiche le calendrier en grille 12 colonnes avec en-têtes fixes"""
+        # Effacer contenu précédent
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
         for widget in self.headers_frame.winfo_children():
             widget.destroy()
 
-        # Afficher rÃ©capitulatif
+        # Afficher récapitulatif
         self.summary_frame.pack(side="top", fill="x", padx=6, pady=(0, 6))
-        self.summary_frame.pack_forget()  # On le recrÃ©e
+        self.summary_frame.pack_forget()  # On le recrée
         self.summary_frame = tk.Frame(self, bg="#1a1a1a", bd=2, relief="raised")
         self.summary_frame.pack(side="top", fill="x", padx=6, pady=(0, 6), after=self.children['!frame'])
         
@@ -923,38 +923,38 @@ class SimulatorWindow(tk.Toplevel):
         total_profit = final_capital - initial_capital
         pct_gain = (total_profit / initial_capital * 100) if initial_capital > 0 else 0
         
-        summary_text = f"ðŸ’° Capital: {initial_capital:.1f} â†’ {self.format_number(final_capital)} $ (+{pct_gain:.1f}%) | Profit total: +{self.format_number(total_profit)} $"
+        summary_text = f"💰 Capital: {initial_capital:.1f} → {self.format_number(final_capital)} $ (+{pct_gain:.1f}%) | Profit total: +{self.format_number(total_profit)} $"
         tk.Label(self.summary_frame, text=summary_text, bg="#1a1a1a", fg=WIN_YELLOW,
                 font=("Segoe UI", 10, "bold")).pack(pady=6)
 
-        # Organiser rÃ©sultats par mois
+        # Organiser résultats par mois
         by_month = defaultdict(list)
         for r in results:
             by_month[r['month']].append(r)
 
         # Noms des mois
-        month_names = ['JANVIER', 'FÃ‰VRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
-                      'JUILLET', 'AOÃ›T', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DÃ‰CEMBRE']
+        month_names = ['JANVIER', 'FÉVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
+                      'JUILLET', 'AOÛT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DÉCEMBRE']
 
-        # RÃ‰ORGANISER selon date dÃ©part
+        # RÉORGANISER selon date départ
         start_month = start_date.month
         start_day = start_date.day
         month_order = [((start_month - 1 + i) % 12) + 1 for i in range(12)]
 
         # LARGEUR FIXE pour toutes les colonnes
         COLUMN_WIDTH = 95
-        SEPARATOR_WIDTH = 3  # SÃ©parateur entre mois
+        SEPARATOR_WIDTH = 3  # Séparateur entre mois
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        # EN-TÃŠTES FIXES (ne scrollent pas)
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
+        # EN-TÊTES FIXES (ne scrollent pas)
+        # ═══════════════════════════════════════════════════════
         headers_grid = tk.Frame(self.headers_frame, bg=DARK_BG)
         headers_grid.pack(side="left", padx=6)
         
-        # Configurer les colonnes pour correspondre Ã  la grille des jours
+        # Configurer les colonnes pour correspondre à la grille des jours
         for col in range(12):
             headers_grid.grid_columnconfigure(col*2, minsize=COLUMN_WIDTH)
-            if col < 11:  # SÃ©parateurs
+            if col < 11:  # Séparateurs
                 headers_grid.grid_columnconfigure(col*2+1, minsize=SEPARATOR_WIDTH)
 
         for col in range(12):
@@ -972,22 +972,22 @@ class SimulatorWindow(tk.Toplevel):
             tk.Label(month_header, text=month_names[month_num-1], bg="#2A2A2A", fg=WIN_YELLOW,
                     font=("Segoe UI", 9, "bold")).pack(expand=True)
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
         # GRILLE DES JOURS (scrollable)
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
         grid = tk.Frame(self.scroll_frame, bg=DARK_BG)
         grid.pack(fill="both", expand=True, padx=6, pady=(0, 50))  # 50px de marge en bas
 
         # Configurer les colonnes pour largeur fixe
         for col in range(12):
             grid.grid_columnconfigure(col*2, minsize=COLUMN_WIDTH)
-            if col < 11:  # SÃ©parateurs
+            if col < 11:  # Séparateurs
                 grid.grid_columnconfigure(col*2+1, minsize=SEPARATOR_WIDTH)
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
         # LIGNES DE JOURS (31 lignes max)
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        for row in range(1, 32):  # Jours 1 Ã  31
+        # ═══════════════════════════════════════════════════════
+        for row in range(1, 32):  # Jours 1 à 31
             for col in range(12):
                 if col > 0:
                     separator = tk.Frame(grid, bg=LINE_GREY, width=SEPARATOR_WIDTH)
@@ -999,7 +999,7 @@ class SimulatorWindow(tk.Toplevel):
                 # Trouver le jour correspondant
                 day_data = next((d for d in month_data if d['day_of_month'] == row), None)
                 
-                # CrÃ©er la cellule avec largeur fixe
+                # Créer la cellule avec largeur fixe
                 is_start_day = (month_num == start_month and row == start_day)
                 cell_bg_outer = "#ff0000" if is_start_day else DARK_BG
                 cell = tk.Frame(grid, bg=cell_bg_outer, bd=2 if is_start_day else 0, relief="flat", 
@@ -1008,7 +1008,7 @@ class SimulatorWindow(tk.Toplevel):
                 cell.grid_propagate(False)
                 
                 if day_data:
-                    # Cellule avec donnÃ©es - ORGANISATION IDENTIQUE PARTOUT
+                    # Cellule avec données - ORGANISATION IDENTIQUE PARTOUT
                     cell_content = tk.Frame(cell, bg="#1a1a1a")
                     cell_content.pack(fill="both", expand=True, padx=1)
                     
@@ -1023,9 +1023,9 @@ class SimulatorWindow(tk.Toplevel):
                     tk.Label(cell_content, text=capital_text, bg="#1a1a1a", fg=capital_color,
                             font=("Segoe UI", 9, "bold"), anchor="e").pack(side="right", fill="x", expand=True)
 
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
         # LIGNE DE TOTAUX PAR MOIS (profits)
-        # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        # ═══════════════════════════════════════════════════════
         for col in range(12):
             if col > 0:
                 separator = tk.Frame(grid, bg=LINE_GREY, width=SEPARATOR_WIDTH)
@@ -1049,7 +1049,7 @@ class SimulatorWindow(tk.Toplevel):
                         font=("Segoe UI", 9, "bold")).pack(expand=True)
 
     def format_number(self, num):
-        """Formate un nombre pour affichage compact (pour le rÃ©capitulatif)"""
+        """Formate un nombre pour affichage compact (pour le récapitulatif)"""
         if num >= 1000000:
             return f"{num/1000000:.1f}M"
         elif num >= 1000:
@@ -1059,7 +1059,7 @@ class SimulatorWindow(tk.Toplevel):
 
     def format_number_full(self, num):
         """Formate un nombre ENTIER avec espaces tous les 3 chiffres"""
-        # Arrondir Ã  l'entier le plus proche
+        # Arrondir à l'entier le plus proche
         num_int = int(round(num))
         # Formater avec espaces tous les 3 chiffres
         return f"{num_int:,}".replace(",", " ")
@@ -1079,12 +1079,12 @@ class SimulatorWindow(tk.Toplevel):
 # =================== APP ===================
 class Calculator(tk.Tk):
     def _r01(self, x):
-        """Arrondit un nombre Ã  0.1 (un dixiÃ¨me)"""
+        """Arrondit un nombre à 0.1 (un dixième)"""
         return round(x, 1)
 
     def __init__(self):
         super().__init__()
-        self.title("Calculatrice PersonnalisÃ©e")
+        self.title("Calculatrice Personnalisée")
         self.configure(bg=DARK_BG)
         self.resizable(False, False)
         try:
@@ -1106,8 +1106,8 @@ class Calculator(tk.Tk):
         self.bk_target = 0.0
 
         self.sessions = [0.0, 0.0, 0.0]
-        self.all_sessions = []  # UNLIMITED
-        self.session_offset = 0  # DÃ©calage affichage rotatif
+        self.all_sessions = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  # 10 sessions max
+        self.session_offset = 0  # Décalage affichage rotatif
         self.cur_session = 0
         self.phase = 1
 
@@ -1115,16 +1115,16 @@ class Calculator(tk.Tk):
         self.kb_unlocked = True
 
         self.obj_pct = 2.0
-        self.num_mode = 18  # 18N par dÃ©faut
+        self.num_mode = 18  # 18N par défaut
 
         self.session_losses = [0.0, 0.0, 0.0]
         self.session_impact_pct = [0.0, 0.0, 0.0]  # Impacts des 3 sessions visibles
-        self.all_session_impacts = []  # UNLIMITED
+        self.all_session_impacts = [0.0] * 10  # Impacts de TOUTES les sessions S1-S10
         
-        # SystÃ¨me de division des pertes (mode 24N uniquement)
+        # Système de division des pertes (mode 24N uniquement)
         self.next_threshold = -2.0  # Prochain palier (-2%, -4%, -6%...)
-        self.active_sessions_count = 3  # Sessions actives (3 Ã  10)
-        self.all_sessions = [0.0] * 10  # Toutes les sessions (S1 Ã  S10)
+        self.active_sessions_count = 3  # Sessions actives (3 à 10)
+        self.all_sessions = [0.0] * 10  # Toutes les sessions (S1 à S10)
         self.session_offset = 0  # Pour affichage rotatif
 
         self.casinos = [{'name': "", 'sessions': []} for _ in range(200)]
@@ -1136,7 +1136,7 @@ class Calculator(tk.Tk):
         self._compact = False
         self.normal_height_px = None
         
-        # Compteur de sessions consÃ©cutives
+        # Compteur de sessions consécutives
         self.consecutive_session_count = 0
         self.last_session_casino_idx = None
         
@@ -1200,12 +1200,12 @@ class Calculator(tk.Tk):
                              relief="flat", bd=0, highlightthickness=0,
                              activeforeground="#FFFFFF", activebackground=DISPLAY_BG,
                              padx=0, pady=0, width=2, cursor="hand2")
-        self.btn_obj_minus = mk_min_btn("âˆ’", lambda: self.adjust_obj_pct(-OBJ_PCT_STEP))
+        self.btn_obj_minus = mk_min_btn("−", lambda: self.adjust_obj_pct(-OBJ_PCT_STEP))
         self.btn_obj_plus  = mk_min_btn("+",  lambda: self.adjust_obj_pct(+OBJ_PCT_STEP))
         self.btn_obj_plus.pack(side="right")
         self.btn_obj_minus.pack(side="right")
 
-        self.cib_label = tk.Label(left, text="CIB S1 0,0 â†’ 0,0", bg=DISPLAY_BG, fg="#aaaaaa", anchor="w", font=("Segoe UI", 8))
+        self.cib_label = tk.Label(left, text="CIB S1 0,0 → 0,0", bg=DISPLAY_BG, fg="#aaaaaa", anchor="w", font=("Segoe UI", 8))
         self.cib_label.pack(fill="x")
 
         right = tk.Frame(self.display_frame, bg=DISPLAY_BG)
@@ -1261,7 +1261,7 @@ class Calculator(tk.Tk):
                                 font=("Segoe UI", 16, "bold"), anchor="e", justify="right")
         self.display.grid(row=1, column=0, sticky="ew", padx=0, pady=(0, 2))
 
-        # Frame conteneur pour hashtag + boutons (disposÃ©s verticalement)
+        # Frame conteneur pour hashtag + boutons (disposés verticalement)
         shortcuts_container = tk.Frame(right, bg=DISPLAY_BG)
         shortcuts_container.grid(row=2, column=0, sticky="w", padx=4, pady=(0, 4))
         
@@ -1321,7 +1321,7 @@ class Calculator(tk.Tk):
         self.btn_go = mk_btn(self.top_row, "GO", self.on_go, bg=ACCENT_BLUE, active="#1E90FF")
         self.btn_P = mk_btn(self.top_row, "P", self.on_lose, bg=ACCENT_RED)
         self.btn_G = mk_btn(self.top_row, "G", self.on_win, bg=ACCENT_GREEN)
-        self.btn_kb = mk_btn(self.top_row, "ðŸ”“", self.toggle_kb_lock, font_sz=11, bg=ACCENT_GREY, active=ACCENT_GREY_H)
+        self.btn_kb = mk_btn(self.top_row, "🔓", self.toggle_kb_lock, font_sz=11, bg=ACCENT_GREY, active=ACCENT_GREY_H)
         add4(self.top_row, (self.btn_go, self.btn_P, self.btn_G, self.btn_kb))
 
         self.mid_container = tk.Frame(self.keypad_outer, bg=DARK_BG, width=SHELL_W, height=4 * CELL_H)
@@ -1337,14 +1337,14 @@ class Calculator(tk.Tk):
         self.d7 = mk_btn(r1, "7", lambda: self.on_digit("7"))
         self.d8 = mk_btn(r1, "8", lambda: self.on_digit("8"))
         self.d9 = mk_btn(r1, "9", lambda: self.on_digit("9"))
-        self.btn_div = mk_btn(r1, "Ã·", lambda: self.on_op("Ã·"), font_sz=12)
+        self.btn_div = mk_btn(r1, "÷", lambda: self.on_op("÷"), font_sz=12)
         add4(r1, (self.d7, self.d8, self.d9, self.btn_div))
 
         r2 = mid_row()
         self.d4 = mk_btn(r2, "4", lambda: self.on_digit("4"))
         self.d5 = mk_btn(r2, "5", lambda: self.on_digit("5"))
         self.d6 = mk_btn(r2, "6", lambda: self.on_digit("6"))
-        self.btn_mul = mk_btn(r2, "Ã—", lambda: self.on_op("Ã—"), font_sz=12)
+        self.btn_mul = mk_btn(r2, "×", lambda: self.on_op("×"), font_sz=12)
         add4(r2, (self.d4, self.d5, self.d6, self.btn_mul))
 
         r3 = mid_row()
@@ -1366,10 +1366,10 @@ class Calculator(tk.Tk):
 
         self.bot_row = centered_row(self.keypad_outer)
         self.bot_row.pack(side="top", fill="x", pady=GAP // 2)
-        self.btn_ret = mk_btn(self.bot_row, "â†©", self.on_undo, font_sz=11, bg="#555555", active="#777777")
+        self.btn_ret = mk_btn(self.bot_row, "↩", self.on_undo, font_sz=11, bg="#555555", active="#777777")
         self.btn_stat = mk_btn(self.bot_row, "18N", self.toggle_num_mode, bg="#2266aa")
         self.btn_res = mk_btn(self.bot_row, "RESET", self.on_reset, bg=RESET_BG, active=RESET_BG_H)
-        self.btn_compact = mk_btn(self.bot_row, "âŒ¨", self.toggle_compact, bg="#666666", active="#888888")
+        self.btn_compact = mk_btn(self.bot_row, "⌨", self.toggle_compact, bg="#666666", active="#888888")
         add4(self.bot_row, (self.btn_ret, self.btn_stat, self.btn_res, self.btn_compact))
 
         self.bottom_spacer = tk.Frame(self, height=BOTTOM_MARGIN, bg=DARK_BG)
@@ -1408,9 +1408,9 @@ class Calculator(tk.Tk):
                     data = json.load(f)
                 if "casinos" in data and isinstance(data["casinos"], list):
                     old_len = len(data["casinos"])
-                    # Migration : Ã©tendre de 50 Ã  200 casinos ou gÃ©rer tout nombre existant
+                    # Migration : étendre de 50 à 200 casinos ou gérer tout nombre existant
                     if old_len < 200:
-                        # Ajouter des casinos vides jusqu'Ã  200
+                        # Ajouter des casinos vides jusqu'à 200
                         data["casinos"].extend([{'name': "", 'sessions': []} for _ in range(200 - old_len)])
                     self.casinos = data["casinos"][:200]  # Garder seulement 200 maximum
                 p = data.get("obj_pct", self.obj_pct)
@@ -1462,7 +1462,7 @@ class Calculator(tk.Tk):
             if not self.mid_container.winfo_ismapped():
                 self.mid_container.pack(side="top", fill="x")
         self.set_height_to_required()
-        self.btn_kb.config(text=("ðŸ”“" if self.kb_unlocked else "ðŸ”’"))
+        self.btn_kb.config(text=("🔓" if self.kb_unlocked else "🔒"))
         self.update_obj_controls_state()
 
     def _fmt(self, x): 
@@ -1482,7 +1482,7 @@ class Calculator(tk.Tk):
 
         for i, (lbl, pct_lbl) in enumerate(self.s_rows):
             R = self.sessions[i]
-            display_num = self.session_offset + i + 1  # Vrai numÃ©ro
+            display_num = self.session_offset + i + 1  # Vrai numéro
             if not self.session_mode:
                 lbl.config(text=f"S{i+1} 0,0", fg=WIN_YELLOW)
             else:
@@ -1497,7 +1497,7 @@ class Calculator(tk.Tk):
 
         if self.session_mode and self.bk_start > 0:
             self.bk_start_label.config(text=f"BK {self._fmt(self.bk_start)}", fg=OK_GREEN)
-            self.bk_arrow.config(text="â†’")
+            self.bk_arrow.config(text="→")
             bk_col = OK_GREEN if self.bk_live >= self.bk_start else WAIT_RED
             self.bk_label.config(text=self._fmt(self.bk_live), fg=bk_col)
         else:
@@ -1507,17 +1507,17 @@ class Calculator(tk.Tk):
 
         self.obj_label.config(text=f"OBJ {self._fmt(self.obj_total if self.session_mode else 0)} ({self.obj_pct:.1f}%)")
         
-        # MODIFICATION 6 : Mettre Ã  jour l'affichage avant GO
+        # MODIFICATION 6 : Mettre à jour l'affichage avant GO
         if not self.session_mode:
             self.update_objective_preview()
         
         cib_rest = self.sessions[self.cur_session] if 0 <= self.cur_session < 3 else 0.0
-        self.cib_label.config(text=f"CIB S{min(self.cur_session + 1, 3)} {self._fmt(cib_rest)} â†’ {self._fmt(self.bk_target)}")
-        self.btn_kb.config(text=("ðŸ”“" if self.kb_unlocked else "ðŸ”’"))
+        self.cib_label.config(text=f"CIB S{min(self.cur_session + 1, 3)} {self._fmt(cib_rest)} → {self._fmt(self.bk_target)}")
+        self.btn_kb.config(text=("🔓" if self.kb_unlocked else "🔒"))
         
-        # Mettre Ã  jour le hashtag de session
+        # Mettre à jour le hashtag de session
         if self.session_mode:
-            # Afficher #1 pour la premiÃ¨re session, #2 pour la deuxiÃ¨me, etc.
+            # Afficher #1 pour la première session, #2 pour la deuxième, etc.
             session_num = self.consecutive_session_count + 1
             self.session_hashtag_label.config(text=f"#{session_num}  ")
         else:
@@ -1568,7 +1568,7 @@ class Calculator(tk.Tk):
             if len(self.current.replace(",", "")) < 12:
                 self.current += d
         self.refresh_display()
-        # MODIFICATION 6 : Mettre Ã  jour OBJ pendant qu'on tape
+        # MODIFICATION 6 : Mettre à jour OBJ pendant qu'on tape
         if not self.session_mode:
             self.update_objective_preview()
 
@@ -1588,7 +1588,7 @@ class Calculator(tk.Tk):
         if self.current == "Erreur":
             self.on_reset()
             return
-        op_map = {"Ã·": "/", "Ã—": "*", "+": "+", "-": "-"}
+        op_map = {"÷": "/", "×": "*", "+": "+", "-": "-"}
         op = op_map.get(symbol)
         right = self.to_float(self.current)
         if self.acc is None:
@@ -1648,7 +1648,7 @@ class Calculator(tk.Tk):
         self.combo['values'] = names
         
         if cur not in names or not cur.strip():
-            self.casino_var.set("âš ï¸ SÃ‰LECTIONNER CASINO")
+            self.casino_var.set("⚠️ SÉLECTIONNER CASINO")
             self.cur_casino_idx = None
         else:
             name = self.casino_var.get()
@@ -1665,15 +1665,15 @@ class Calculator(tk.Tk):
     def on_casino_selected(self, event=None):
         name = self.casino_var.get()
         
-        # RÃ©initialiser le compteur si on change de casino
+        # Réinitialiser le compteur si on change de casino
         if self.cur_casino_idx is not None:
             old_idx = self.cur_casino_idx
         else:
             old_idx = None
         
-        if name == "âš ï¸ SÃ‰LECTIONNER CASINO":
+        if name == "⚠️ SÉLECTIONNER CASINO":
             self.cur_casino_idx = None
-            # Reset compteur si on dÃ©sÃ©lectionne
+            # Reset compteur si on désélectionne
             self.consecutive_session_count = 0
             self.last_session_casino_idx = None
         else:
@@ -1704,18 +1704,18 @@ class Calculator(tk.Tk):
         self.stats_win = StatsWindow(self)
 
     def open_casino_list_shortcut(self):
-        """Ouvre la fenÃªtre de liste des casinos depuis le raccourci LC"""
+        """Ouvre la fenêtre de liste des casinos depuis le raccourci LC"""
         CasinoListWindow(self)
 
     def open_export_direct(self):
-        """Ouvre la fenÃªtre d'historique interactive"""
+        """Ouvre la fenêtre d'historique interactive"""
         if getattr(self, 'history_win', None) and self.history_win.winfo_exists():
             self.history_win.lift()
             return
         self.history_win = HistoryWindow(self)
 
     def open_simulator(self):
-        """Ouvre la fenÃªtre du simulateur 365 jours"""
+        """Ouvre la fenêtre du simulateur 365 jours"""
         if getattr(self, 'simulator_win', None) and self.simulator_win.winfo_exists():
             self.simulator_win.lift()
             return
@@ -1765,9 +1765,9 @@ class Calculator(tk.Tk):
                 'avg_gain_per_hour': avg_gain_per_hour}
 
     def _log_full_session(self):
-        """Enregistre la session complÃ¨te avec dÃ©tails de TOUTES les sessions actives (S1-S10)"""
+        """Enregistre la session complète avec détails de TOUTES les sessions actives (S1-S10)"""
         if self.cur_casino_idx is None or self.session_start_ts is None:
-            print("[LOG] âš ï¸ Pas de casino sÃ©lectionnÃ© ou session non dÃ©marrÃ©e")
+            print("[LOG] ⚠️ Pas de casino sélectionné ou session non démarrée")
             return
         
         end_ts = time.time()
@@ -1788,17 +1788,17 @@ class Calculator(tk.Tk):
             'start_ts': self.session_start_ts,
             'end_ts': end_ts,
             'impacts_detail': all_impacts,  # TOUTES les sessions actives
-            'num_sessions': self.active_sessions_count,  # Nombre de sessions utilisÃ©es
+            'num_sessions': self.active_sessions_count,  # Nombre de sessions utilisées
             'num_mode': self.num_mode  # Mode 18N ou 24N
         }
         self.casinos[self.cur_casino_idx]['sessions'].append(rec)
         
         self.save_data()
         
-        # Affichage console adaptÃ©
+        # Affichage console adapté
         impacts_str = " ".join([f"S{i+1}={all_impacts[i]:.1f}%" for i in range(len(all_impacts))])
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“Š SESSION COMPLÃˆTE | DurÃ©e={fmt_time(duration)} Impact={impact_pct:.1f}% Profit={profit_total:.1f}")
-        print(f"  DÃ©tail impacts: {impacts_str}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 📊 SESSION COMPLÈTE | Durée={fmt_time(duration)} Impact={impact_pct:.1f}% Profit={profit_total:.1f}")
+        print(f"  Détail impacts: {impacts_str}")
         
         if getattr(self, 'stats_win', None) and self.stats_win.winfo_exists():
             self.stats_win.update_stats_ui()
@@ -1886,7 +1886,7 @@ class Calculator(tk.Tk):
 
     def on_go(self):
         if self.cur_casino_idx is None:
-            messagebox.showerror("Erreur", "Veuillez sÃ©lectionner un casino avant de dÃ©marrer.")
+            messagebox.showerror("Erreur", "Veuillez sélectionner un casino avant de démarrer.")
             return
         
         self.push_state()
@@ -1896,7 +1896,7 @@ class Calculator(tk.Tk):
         self.bk_start = self.to_float(self.current)
         
         if self.bk_start <= 0:
-            messagebox.showerror("Erreur", "La bankroll doit Ãªtre positive.")
+            messagebox.showerror("Erreur", "La bankroll doit être positive.")
             self.state_stack.pop()
             return
 
@@ -1909,19 +1909,19 @@ class Calculator(tk.Tk):
         s3 = max(0.0, self._r01(self._r01(self.obj_total) - self._r01(s1) - self._r01(s2)))
         
         if self.num_mode == 24:
-            # Mode 24N : S1-S3 ont objectif, S4-S10 = 0 (rÃ©serves)
+            # Mode 24N : S1-S3 ont objectif, S4-S10 = 0 (réserves)
             self.all_sessions = [s1, s2, s3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             self.sessions = [s1, s2, s3]  # Affichage initial
             self.session_offset = 0
-            # RÃ©initialiser systÃ¨me division pertes
+            # Réinitialiser système division pertes
             self.next_threshold = -2.0
             self.active_sessions_count = 3
         else:
-            # Mode 18N : 3 sessions + rÃ©serves jusqu'Ã  S10
+            # Mode 18N : 3 sessions + réserves jusqu'à S10
             self.all_sessions = [s1, s2, s3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             self.sessions = [s1, s2, s3]
             self.session_offset = 0
-            # RÃ©initialiser systÃ¨me division pertes
+            # Réinitialiser système division pertes
             self.next_threshold = -2.0
             self.active_sessions_count = 3
         
@@ -1935,7 +1935,7 @@ class Calculator(tk.Tk):
         display_stake, table_stake = self._prepare_stake(stake)
         
         if table_stake > self.bk_start:
-            messagebox.showerror("Erreur", f"Bankroll insuffisante pour la premiÃ¨re mise ({self._fmt(display_stake)})!")
+            messagebox.showerror("Erreur", f"Bankroll insuffisante pour la première mise ({self._fmt(display_stake)})!")
             self.state_stack.pop()
             return
         
@@ -1944,7 +1944,7 @@ class Calculator(tk.Tk):
 
         self.session_losses = [0.0, 0.0, 0.0]
         self.session_impact_pct = [0.0, 0.0, 0.0]
-        self.all_session_impacts = []
+        self.all_session_impacts = [0.0] * 10  # Reset tous les impacts
         
         initial_impact = -(table_stake / self.bk_start * 100.0) if self.bk_start > 0 else 0.0
         self.session_impact_pct[0] = initial_impact
@@ -1967,23 +1967,23 @@ class Calculator(tk.Tk):
         self.apply_mode_sizes()
 
         print(f"\n{'='*60}")
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ DÃ‰MARRAGE SESSION")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 DÉMARRAGE SESSION")
         print(f"  Casino: {self.casinos[self.cur_casino_idx]['name'] or f'#{self.cur_casino_idx+1}'}")
         print(f"  BK_start: {self.bk_start:.1f} | BK_target: {self.bk_target:.1f}")
         print(f"  OBJ_total: {self.obj_total:.1f} ({self.obj_pct:.1f}%)")
         print(f"  S1={s1:.1f} | S2={s2:.1f} | S3={s3:.1f}")
-        print(f"  ðŸ’° PremiÃ¨re mise sur table: {table_stake:.1f}")
-        print(f"  ðŸ’¼ Reste en poche: {self.bk_live:.1f}")
-        print(f"  ðŸ“Š BK totale (poche+table): {self.bk_live + self.bk_on_table:.1f}")
+        print(f"  💰 Première mise sur table: {table_stake:.1f}")
+        print(f"  💼 Reste en poche: {self.bk_live:.1f}")
+        print(f"  📊 BK totale (poche+table): {self.bk_live + self.bk_on_table:.1f}")
         print(f"{'='*60}\n")
         
-        # DEBUG: VÃ©rifier bk_on_table
+        # DEBUG: Vérifier bk_on_table
         
-        # Afficher la mise par douzaine Ã  l'utilisateur
+        # Afficher la mise par douzaine à l'utilisateur
         self.current = self.from_float(display_stake)
         self.refresh_display()
         
-        # DEBUG: VÃ©rifier aprÃ¨s refresh
+        # DEBUG: Vérifier après refresh
 
     def next_stake(self):
         if not (0 <= self.cur_session < 3):
@@ -1998,10 +1998,10 @@ class Calculator(tk.Tk):
         if not (0 <= i < 3) or self.bk_start <= 0:
             return False
         
-        # Impact basÃ© sur ce qui reste en POCHE (sans compter l'argent sur la table)
+        # Impact basé sur ce qui reste en POCHE (sans compter l'argent sur la table)
         current_impact = -((self.bk_start - self.bk_live) / self.bk_start * 100.0)
         
-        # On garde le PIRE impact (le plus nÃ©gatif)
+        # On garde le PIRE impact (le plus négatif)
         if current_impact < self.session_impact_pct[i]:
             self.session_impact_pct[i] = current_impact
             
@@ -2010,7 +2010,7 @@ class Calculator(tk.Tk):
             if 0 <= absolute_session_idx < 10:
                 self.all_session_impacts[absolute_session_idx] = current_impact
             
-            # VÃ©rifier si on doit diviser les pertes (mode 24N uniquement)
+            # Vérifier si on doit diviser les pertes (mode 24N uniquement)
             division_effectuee = self._check_and_divide_losses()
             return division_effectuee
         
@@ -2028,11 +2028,11 @@ class Calculator(tk.Tk):
         if stake <= 0 or R <= 0:
             return
         
-        # VÃ©rifier que la mise affichÃ©e correspond (en mode 24N, stake est par douzaine)
+        # Vérifier que la mise affichée correspond (en mode 24N, stake est par douzaine)
         expected_table = stake * 2 if self.num_mode == 24 else stake
         if abs(expected_table - self.bk_on_table) > 0.01:
             messagebox.showwarning("Attention", 
-                f"La mise affichÃ©e ({self._fmt(stake)}) ne correspond pas Ã  ce qui est sur la table ({self._fmt(self.bk_on_table)})!")
+                f"La mise affichée ({self._fmt(stake)}) ne correspond pas à ce qui est sur la table ({self._fmt(self.bk_on_table)})!")
             return
         
         self.push_state()
@@ -2040,23 +2040,23 @@ class Calculator(tk.Tk):
         before_pocket = self.bk_live
         before_total = self.bk_live + self.bk_on_table
         
-        # Calcul du gain basÃ© sur la mise RÃ‰ELLE (bk_on_table)
+        # Calcul du gain basé sur la mise RÉELLE (bk_on_table)
         table_stake = self.bk_on_table
         
         if self.num_mode == 24:
             # Mode 24N : 2 douzaines, une seule gagne
-            # Une douzaine rapporte 3Ã— â†’ rÃ©cupÃ¨re table_stake/2 Ã— 3 = table_stake Ã— 1.5
-            # Gain = rÃ©cupÃ©rÃ© - mise = 1.5 Ã— table_stake - table_stake = 0.5 Ã— table_stake
-            # MAIS il faut rÃ©cupÃ©rer la mise d'abord, puis ajouter le gain
-            # Total Ã  ajouter = table_stake (mise rÃ©cupÃ©rÃ©e) + 0.5 Ã— table_stake (gain) = 1.5 Ã— table_stake
-            # NON! Une douzaine gagne (Ã— 3 = 0.3), l'autre perd (-0.1)
-            # RÃ©cupÃ©rÃ© = 0.3, donc gain net = 0.3 - 0.2 = 0.1 = table_stake / 2
-            # Mais on a dÃ©jÃ  enlevÃ© table_stake de la poche !
-            # Donc il faut ajouter : mise + gain = table_stake + (table_stake/2) = 1.5 Ã— table_stake
+            # Une douzaine rapporte 3× → récupère table_stake/2 × 3 = table_stake × 1.5
+            # Gain = récupéré - mise = 1.5 × table_stake - table_stake = 0.5 × table_stake
+            # MAIS il faut récupérer la mise d'abord, puis ajouter le gain
+            # Total à ajouter = table_stake (mise récupérée) + 0.5 × table_stake (gain) = 1.5 × table_stake
+            # NON! Une douzaine gagne (× 3 = 0.3), l'autre perd (-0.1)
+            # Récupéré = 0.3, donc gain net = 0.3 - 0.2 = 0.1 = table_stake / 2
+            # Mais on a déjà enlevé table_stake de la poche !
+            # Donc il faut ajouter : mise + gain = table_stake + (table_stake/2) = 1.5 × table_stake
             won_amount = self._r01(self._r01(table_stake) * 1.5)
         else:
             # Mode 18N : simple chance, paiement 1:1
-            # Code ORIGINAL: won_amount = stake Ã— 2 (mise + gain)
+            # Code ORIGINAL: won_amount = stake × 2 (mise + gain)
             won_amount = self._r01(self._r01(table_stake) * 2)
         
         self.bk_live = self._r01(self._r01(self.bk_live) + self._r01(won_amount))
@@ -2065,10 +2065,10 @@ class Calculator(tk.Tk):
         
         after_total = self.bk_live + self.bk_on_table
 
-        # Ne PAS vÃ©rifier objectif ici - on le vÃ©rifie dans phase 1/2
-        # (sinon on compte l'argent sur table qui n'est pas encore gagnÃ©)
+        # Ne PAS vérifier objectif ici - on le vérifie dans phase 1/2
+        # (sinon on compte l'argent sur table qui n'est pas encore gagné)
 
-        prepare_next = True  # Par dÃ©faut on prÃ©pare la mise suivante
+        prepare_next = True  # Par défaut on prépare la mise suivante
 
         if self.phase == 1:
             if self.num_mode == 24:
@@ -2083,21 +2083,21 @@ class Calculator(tk.Tk):
             self.sessions[self.cur_session] = remaining
             self.all_sessions[self.session_offset + self.cur_session] = remaining
             
-            # Si remaining = 0, traiter comme si c'Ã©tait le coup 2 (session terminÃ©e)
+            # Si remaining = 0, traiter comme si c'était le coup 2 (session terminée)
             if remaining <= 0.0:
                 self.sessions[self.cur_session] = 0.0
                 self.all_sessions[self.session_offset + self.cur_session] = 0.0
                 self.phase = 1
-                self.history = "G (c1â†’c2)"
+                self.history = "G (c1→c2)"
                 
-                # VÃ©rifier objectif atteint AVANT de passer Ã  session suivante
+                # Vérifier objectif atteint AVANT de passer à session suivante
                 # Compter BK totale = poche + argent sur table
                 bk_totale_phase1 = self._r01(self._r01(self.bk_live) + self._r01(self.bk_on_table))
                 objectif_atteint = bk_totale_phase1 >= self.bk_target if self.num_mode == 24 else False
                 
                 if objectif_atteint:
-                    # Objectif atteint, session terminÃ©e
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ OBJECTIF ATTEINT! BK={bk_totale_phase1:.1f}â‚¬ â‰¥ {self.bk_target:.1f}â‚¬")
+                    # Objectif atteint, session terminée
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 OBJECTIF ATTEINT! BK={bk_totale_phase1:.1f}€ ≥ {self.bk_target:.1f}€")
                     # Marquer toutes les sessions restantes comme WIN
                     for i in range(self.active_sessions_count):
                         self.all_sessions[i] = 0.0
@@ -2105,9 +2105,9 @@ class Calculator(tk.Tk):
                         self.sessions[i] = 0.0
                     self.refresh_display()
                     tout_win = True
-                    prepare_next = False  # Ne pas prÃ©parer de mise suivante
+                    prepare_next = False  # Ne pas préparer de mise suivante
                 if self.num_mode == 24 and not objectif_atteint:
-                    # Mode 24N : RECALCULER seulement si sessions supplÃ©mentaires actives
+                    # Mode 24N : RECALCULER seulement si sessions supplémentaires actives
                     if remaining <= 0.0 and self.active_sessions_count > 3:
                         objectif_restant = max(0.1, self.bk_target - self.bk_live)
                         # Mode 24N paroli : gain = somme sessions
@@ -2129,28 +2129,28 @@ class Calculator(tk.Tk):
                                     display_index = i - self.session_offset
                                     self.sessions[display_index] = valeur_par_session
                             
-                            print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Recalcul sessions: {num_restantes} sessions Ã— {valeur_par_session:.1f}â‚¬ = {total_sessions_needed:.1f}â‚¬ pour atteindre {self.bk_target:.1f}â‚¬")
+                            print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Recalcul sessions: {num_restantes} sessions × {valeur_par_session:.1f}€ = {total_sessions_needed:.1f}€ pour atteindre {self.bk_target:.1f}€")
                     
                     # Mode 24N : chercher prochaine session non-WIN
                     next_found = False
                     
-                    # Chercher dans la fenÃªtre actuelle
+                    # Chercher dans la fenêtre actuelle
                     for i in range(3):
                         if i != self.cur_session and self.sessions[i] > 0:
                             self.cur_session = i
                             next_found = True
                             break
                     
-                    # Si pas trouvÃ©, scroller si possible
+                    # Si pas trouvé, scroller si possible
                     if not next_found and self.session_offset + 3 < self.active_sessions_count:
-                        # Il y a des sessions aprÃ¨s la fenÃªtre
+                        # Il y a des sessions après la fenêtre
                         self.session_offset += 1
                         self.sessions[0] = self.all_sessions[self.session_offset]
                         self.sessions[1] = self.all_sessions[self.session_offset + 1]
                         self.sessions[2] = self.all_sessions[self.session_offset + 2]
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“œ Scroll affichage â†’ S{self.session_offset+1}-S{self.session_offset+2}-S{self.session_offset+3}")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 📜 Scroll affichage → S{self.session_offset+1}-S{self.session_offset+2}-S{self.session_offset+3}")
                         
-                        # Chercher premiÃ¨re session > 0
+                        # Chercher première session > 0
                         for i in range(3):
                             if self.sessions[i] > 0:
                                 self.cur_session = i
@@ -2162,11 +2162,11 @@ class Calculator(tk.Tk):
                         self.session_losses[self.cur_session] = 0.0
                         self.session_impact_pct[self.cur_session] = 0.0
                         display_num = self.session_offset + self.cur_session + 1
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Passage Ã  S{display_num} | Objectif: {self.session_initial_target:.1f}")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Passage à S{display_num} | Objectif: {self.session_initial_target:.1f}")
                     else:
-                        # Aucune session > 0 trouvÃ©e : recrÃ©er
+                        # Aucune session > 0 trouvée : recréer
                         objectif_restant = self.bk_target - self.bk_live
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Toutes sessions WIN - RecrÃ©ation pour {objectif_restant:.1f}â‚¬")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Toutes sessions WIN - Recréation pour {objectif_restant:.1f}€")
                         
                         total_sessions = objectif_restant * 2.0
                         s1_val = self._r01(total_sessions / 3.0)
@@ -2185,13 +2185,13 @@ class Calculator(tk.Tk):
                         self.session_losses[0] = 0.0
                         self.session_impact_pct[0] = 0.0
                         
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}]    â†’ S1={s1_val:.1f} S2={s2_val:.1f} S3={s3_val:.1f}")
-                        # prepare_next reste True pour prÃ©parer la premiÃ¨re mise
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}]    → S1={s1_val:.1f} S2={s2_val:.1f} S3={s3_val:.1f}")
+                        # prepare_next reste True pour préparer la première mise
                 elif self.cur_session < 2 or (self.active_sessions_count > 3 and self.session_offset == 0 and self.sessions[0] == 0):
-                    # Mode 18N : Passer Ã  session suivante OU scroller si S1 WIN avec S4 active
-                    # Mode 24N : Toujours passer Ã  session suivante
+                    # Mode 18N : Passer à session suivante OU scroller si S1 WIN avec S4 active
+                    # Mode 24N : Toujours passer à session suivante
                     
-                    # RECALCUL pour mode 18N (mÃªme logique que mode 24N)
+                    # RECALCUL pour mode 18N (même logique que mode 24N)
                     if self.num_mode == 18:
                         objectif_restant = max(0.1, self.bk_target - self.bk_live)
                         
@@ -2211,9 +2211,9 @@ class Calculator(tk.Tk):
                                     display_index = i - self.session_offset
                                     self.sessions[display_index] = valeur_par_session
                             
-                            print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Recalcul sessions: {num_restantes} sessions Ã— {valeur_par_session:.1f}â‚¬ = {objectif_restant:.1f}â‚¬")
+                            print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Recalcul sessions: {num_restantes} sessions × {valeur_par_session:.1f}€ = {objectif_restant:.1f}€")
                     
-                    # Chercher prochaine session non-WIN dans fenÃªtre actuelle
+                    # Chercher prochaine session non-WIN dans fenêtre actuelle
                     next_found = False
                     for i in range(self.cur_session + 1, 3):
                         if self.sessions[i] > 0:
@@ -2221,15 +2221,15 @@ class Calculator(tk.Tk):
                             next_found = True
                             break
                     
-                    # Si pas trouvÃ© et S1 WIN avec sessions supplÃ©mentaires, scroller
+                    # Si pas trouvé et S1 WIN avec sessions supplémentaires, scroller
                     if not next_found and self.session_offset == 0 and self.sessions[0] == 0 and self.active_sessions_count > 3:
                         self.session_offset = 1
                         self.sessions[0] = self.all_sessions[1]
                         self.sessions[1] = self.all_sessions[2]
                         self.sessions[2] = self.all_sessions[3]
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“œ Scroll affichage â†’ S2-S3-S4")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 📜 Scroll affichage → S2-S3-S4")
                         
-                        # Chercher premiÃ¨re session > 0
+                        # Chercher première session > 0
                         for i in range(3):
                             if self.sessions[i] > 0:
                                 self.cur_session = i
@@ -2241,11 +2241,11 @@ class Calculator(tk.Tk):
                         self.session_losses[self.cur_session] = 0.0
                         self.session_impact_pct[self.cur_session] = 0.0
                         display_num = self.session_offset + self.cur_session + 1
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Passage Ã  S{display_num} | Objectif: {self.session_initial_target:.1f}")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Passage à S{display_num} | Objectif: {self.session_initial_target:.1f}")
                     
-                    # Mode 24N : vÃ©rifier si on doit scroller l'affichage
+                    # Mode 24N : vérifier si on doit scroller l'affichage
                     if self.num_mode == 24 and self.session_offset > 0 and self.cur_session == 0:
-                        # On revient Ã  cur_session=0 aprÃ¨s scroll, donc on doit avancer offset
+                        # On revient à cur_session=0 après scroll, donc on doit avancer offset
                         self.session_offset += 1
                         if self.session_offset + 2 < self.active_sessions_count:
                             self.sessions[0] = self.all_sessions[self.session_offset]
@@ -2253,13 +2253,13 @@ class Calculator(tk.Tk):
                             self.sessions[2] = self.all_sessions[self.session_offset + 2]
                     
                     display_num = self.session_offset + self.cur_session + 1
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Passage Ã  S{display_num} | Objectif: {self.session_initial_target:.1f}")
-                    # prepare_next reste True pour prÃ©parer la premiÃ¨re mise
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Passage à S{display_num} | Objectif: {self.session_initial_target:.1f}")
+                    # prepare_next reste True pour préparer la première mise
                 else:
-                    # Session terminÃ©e
-                    prepare_next = False  # Ne pas prÃ©parer de mise
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ‰ SESSION COMPLÃˆTE!")
-                    print(f"  BK finale: {self.bk_live:.1f} (dÃ©part: {self.bk_start:.1f})")
+                    # Session terminée
+                    prepare_next = False  # Ne pas préparer de mise
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎉 SESSION COMPLÈTE!")
+                    print(f"  BK finale: {self.bk_live:.1f} (départ: {self.bk_start:.1f})")
                     print(f"  Gain total: {self.obj_total:.1f}")
                     print(f"  Impacts: S1={self.all_session_impacts[0]:.1f}% | S2={self.all_session_impacts[1]:.1f}% | S3={self.all_session_impacts[2]:.1f}%")
                     
@@ -2267,12 +2267,12 @@ class Calculator(tk.Tk):
                     self.kb_unlocked = True
                     self.combo.state(['!disabled'])
                     
-                    # RafraÃ®chir l'affichage pour montrer S3 WIN
+                    # Rafraîchir l'affichage pour montrer S3 WIN
                     self.refresh_display()
                     
                     casino_name = self.casinos[self.cur_casino_idx]['name'] if self.cur_casino_idx is not None else "Inconnu"
                     duration = int(time.time() - self.session_start_ts) if self.session_start_ts else 0
-                    # Impact total = le PIRE impact (le plus nÃ©gatif)
+                    # Impact total = le PIRE impact (le plus négatif)
                     total_impact = abs(min(self.session_impact_pct))
                     bk_finale_session = self.bk_live + self.bk_on_table  # Inclure argent sur table
                     obj_total_session = self.obj_total
@@ -2289,13 +2289,13 @@ class Calculator(tk.Tk):
                     
                     next_session_num = self.consecutive_session_count + 1
                     session_numbers = {
-                        2: "deuxiÃ¨me", 3: "troisiÃ¨me", 4: "quatriÃ¨me", 5: "cinquiÃ¨me",
-                        6: "sixiÃ¨me", 7: "septiÃ¨me", 8: "huitiÃ¨me", 9: "neuviÃ¨me", 10: "dixiÃ¨me"
+                        2: "deuxième", 3: "troisième", 4: "quatrième", 5: "cinquième",
+                        6: "sixième", 7: "septième", 8: "huitième", 9: "neuvième", 10: "dixième"
                     }
-                    session_text = session_numbers.get(next_session_num, f"{next_session_num}Ã¨me")
+                    session_text = session_numbers.get(next_session_num, f"{next_session_num}ème")
                     
                     dialog = tk.Toplevel(self)
-                    dialog.title("Session terminÃ©e")
+                    dialog.title("Session terminée")
                     dialog.configure(bg="#f0f0f0")
                     dialog.resizable(False, False)
                     
@@ -2310,15 +2310,15 @@ class Calculator(tk.Tk):
                     content = tk.Frame(dialog, bg="#f0f0f0")
                     content.pack(padx=20, pady=20)
                     
-                    msg_part1 = f"âœ… SESSION TERMINÃ‰E!\n\n" \
-                               f"ðŸŽ° Casino: {casino_name}\n" \
-                               f"â±ï¸ DurÃ©e: {fmt_time(duration)}\n" \
-                               f"ðŸ’° BK dÃ©part: {bk_start_session:.1f}â‚¬\n" \
-                               f"ðŸŽ¯ Objectif: {obj_total_session:.1f}â‚¬ ({obj_pct_session:.1f}%)\n" \
-                               f"ðŸ’¼ BK finale: {bk_finale_session:.1f}â‚¬\n" \
-                               f"ðŸ“Š Gain: +{obj_total_session:.1f}â‚¬\n" \
-                               f"ðŸ’¥ Impact total: {total_impact:.1f}%\n\n" \
-                               f"Voulez-vous dÃ©marrer une "
+                    msg_part1 = f"✅ SESSION TERMINÉE!\n\n" \
+                               f"🎰 Casino: {casino_name}\n" \
+                               f"⏱️ Durée: {fmt_time(duration)}\n" \
+                               f"💰 BK départ: {bk_start_session:.1f}€\n" \
+                               f"🎯 Objectif: {obj_total_session:.1f}€ ({obj_pct_session:.1f}%)\n" \
+                               f"💼 BK finale: {bk_finale_session:.1f}€\n" \
+                               f"📊 Gain: +{obj_total_session:.1f}€\n" \
+                               f"💥 Impact total: {total_impact:.1f}%\n\n" \
+                               f"Voulez-vous démarrer une "
                     
                     tk.Label(content, text=msg_part1, bg="#f0f0f0", 
                             font=("Segoe UI", 9), justify="left").pack()
@@ -2369,7 +2369,7 @@ class Calculator(tk.Tk):
                 # Normal: il reste de l'argent pour le coup 2
                 self.phase = 2
                 self.history = "G (c1)"
-                # Pas de return ici, on continue pour prÃ©parer la mise suivante
+                # Pas de return ici, on continue pour préparer la mise suivante
         else:
             # Phase 2 : session actuelle WIN
             self.sessions[self.cur_session] = 0.0
@@ -2377,7 +2377,7 @@ class Calculator(tk.Tk):
             self.phase = 1
             self.history = "G (c2)"
             
-            # VÃ©rifier si objectif atteint (prioritaire en mode 24N)
+            # Vérifier si objectif atteint (prioritaire en mode 24N)
             # Compter BK totale = poche + argent sur table
             bk_totale = self._r01(self._r01(self.bk_live) + self._r01(self.bk_on_table))
             objectif_atteint = bk_totale >= self.bk_target
@@ -2385,7 +2385,7 @@ class Calculator(tk.Tk):
             if self.num_mode == 24:
                 # Mode 24N : continuer tant que objectif pas atteint
                 if objectif_atteint:
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ OBJECTIF ATTEINT! BK={bk_totale:.1f}â‚¬ â‰¥ {self.bk_target:.1f}â‚¬")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 OBJECTIF ATTEINT! BK={bk_totale:.1f}€ ≥ {self.bk_target:.1f}€")
                     # Marquer toutes les sessions restantes comme WIN
                     for i in range(self.active_sessions_count):
                         self.all_sessions[i] = 0.0
@@ -2393,10 +2393,10 @@ class Calculator(tk.Tk):
                         self.sessions[i] = 0.0
                     self.refresh_display()
                     tout_win = True
-                    prepare_next = False  # Ne pas prÃ©parer de mise
+                    prepare_next = False  # Ne pas préparer de mise
                     # Continuer jusqu'au popup final (ligne 2440)
                 else:
-                    # RECALCULER seulement si sessions supplÃ©mentaires actives
+                    # RECALCULER seulement si sessions supplémentaires actives
                     if self.active_sessions_count > 3:
                         objectif_restant = max(0.1, self.bk_target - self.bk_live)
                         # Mode 24N paroli : gain = somme sessions
@@ -2418,7 +2418,7 @@ class Calculator(tk.Tk):
                                     display_index = i - self.session_offset
                                     self.sessions[display_index] = valeur_par_session
                             
-                            print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Recalcul sessions: {num_restantes} sessions Ã— {valeur_par_session:.1f}â‚¬ = {total_sessions_needed:.1f}â‚¬")
+                            print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Recalcul sessions: {num_restantes} sessions × {valeur_par_session:.1f}€ = {total_sessions_needed:.1f}€")
                     
                     # Objectif pas atteint
                     tout_win = False
@@ -2427,7 +2427,7 @@ class Calculator(tk.Tk):
                 objectif_atteint = self.bk_live >= self.bk_target
                 
                 if objectif_atteint:
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ OBJECTIF ATTEINT! BK={self.bk_live:.1f}â‚¬ â‰¥ {self.bk_target:.1f}â‚¬")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 OBJECTIF ATTEINT! BK={self.bk_live:.1f}€ ≥ {self.bk_target:.1f}€")
                     # Marquer toutes les sessions restantes comme WIN
                     for i in range(self.active_sessions_count):
                         self.all_sessions[i] = 0.0
@@ -2435,7 +2435,7 @@ class Calculator(tk.Tk):
                         self.sessions[i] = 0.0
                     self.refresh_display()
                     tout_win = True
-                    prepare_next = False  # Ne pas prÃ©parer de mise
+                    prepare_next = False  # Ne pas préparer de mise
                 else:
                     # RECALCULER les sessions restantes pour atteindre l'objectif exact
                     objectif_restant = max(0.1, self.bk_target - self.bk_live)
@@ -2456,30 +2456,30 @@ class Calculator(tk.Tk):
                                 display_index = i - self.session_offset
                                 self.sessions[display_index] = valeur_par_session
                         
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Recalcul sessions: {num_restantes} sessions Ã— {valeur_par_session:.1f}â‚¬ = {objectif_restant:.1f}â‚¬")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Recalcul sessions: {num_restantes} sessions × {valeur_par_session:.1f}€ = {objectif_restant:.1f}€")
                     
-                    # VÃ©rifier si toutes les sessions actives sont WIN
+                    # Vérifier si toutes les sessions actives sont WIN
                     sessions_restantes = [self.all_sessions[i] for i in range(self.active_sessions_count) if self.all_sessions[i] > 0]
                     tout_win = len(sessions_restantes) == 0
                 
                 if tout_win:
-                    # RafraÃ®chir pour montrer toutes sessions WIN
+                    # Rafraîchir pour montrer toutes sessions WIN
                     self.refresh_display()
             
             if not tout_win:
                 next_found = False
                 
-                # Si S1 WIN et sessions supplÃ©mentaires actives, scroller (18N et 24N)
+                # Si S1 WIN et sessions supplémentaires actives, scroller (18N et 24N)
                 if self.session_offset == 0 and self.sessions[0] == 0 and self.active_sessions_count > 3:
                     # S1 est WIN, scroller vers S2-S3-S4
                     self.session_offset = 1
                     self.sessions[0] = self.all_sessions[1]
                     self.sessions[1] = self.all_sessions[2]
                     self.sessions[2] = self.all_sessions[3]
-                    self.cur_session = 0  # Pointer vers S2 (premiÃ¨re position affichÃ©e)
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“œ Scroll affichage â†’ S2-S3-S4")
+                    self.cur_session = 0  # Pointer vers S2 (première position affichée)
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 📜 Scroll affichage → S2-S3-S4")
                     
-                    # Chercher premiÃ¨re session non-WIN dans nouvelle fenÃªtre
+                    # Chercher première session non-WIN dans nouvelle fenêtre
                     for i in range(3):
                         if self.sessions[i] > 0:
                             self.cur_session = i
@@ -2487,14 +2487,14 @@ class Calculator(tk.Tk):
                             break
                 else:
                     # Chercher session non-WIN normalement
-                    # D'abord chercher APRÃˆS cur_session
+                    # D'abord chercher APRÈS cur_session
                     for i in range(self.cur_session + 1, 3):
                         if self.sessions[i] > 0:
                             self.cur_session = i
                             next_found = True
                             break
                     
-                    # Si pas trouvÃ©, chercher AVANT cur_session (sessions qu'on a sautÃ©es)
+                    # Si pas trouvé, chercher AVANT cur_session (sessions qu'on a sautées)
                     if not next_found:
                         for i in range(self.cur_session):
                             if self.sessions[i] > 0:
@@ -2502,19 +2502,19 @@ class Calculator(tk.Tk):
                                 next_found = True
                                 break
                     
-                    # Si pas trouvÃ©, essayer de scroller (18N et 24N)
+                    # Si pas trouvé, essayer de scroller (18N et 24N)
                     if not next_found:
-                        # Chercher la prochaine session non-WIN aprÃ¨s la fenÃªtre
+                        # Chercher la prochaine session non-WIN après la fenêtre
                         for i in range(self.session_offset + 3, self.active_sessions_count):
                             if self.all_sessions[i] > 0:
-                                # Scroller jusqu'Ã  cette session
+                                # Scroller jusqu'à cette session
                                 self.session_offset = i - 2
                                 self.sessions[0] = self.all_sessions[self.session_offset]
                                 self.sessions[1] = self.all_sessions[self.session_offset + 1]
                                 self.sessions[2] = self.all_sessions[self.session_offset + 2]
                                 self.cur_session = 2
                                 next_found = True
-                                print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“œ Scroll affichage â†’ S{self.session_offset+1}-S{self.session_offset+2}-S{self.session_offset+3}")
+                                print(f"[{datetime.now().strftime('%H:%M:%S')}] 📜 Scroll affichage → S{self.session_offset+1}-S{self.session_offset+2}-S{self.session_offset+3}")
                                 break
                 
                 if next_found:
@@ -2522,23 +2522,23 @@ class Calculator(tk.Tk):
                     self.session_losses[self.cur_session] = 0.0
                     self.session_impact_pct[self.cur_session] = 0.0
                     display_num = self.session_offset + self.cur_session + 1
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ Passage Ã  S{display_num} | Objectif: {self.session_initial_target:.1f}")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 Passage à S{display_num} | Objectif: {self.session_initial_target:.1f}")
                 else:
-                    # Aucune session non-WIN trouvÃ©e
+                    # Aucune session non-WIN trouvée
                     if self.num_mode == 24:
                         # Mode 24N : terminer (objectif proche ou atteint)
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ Toutes sessions WIN - BK={self.bk_live:.1f}â‚¬")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 Toutes sessions WIN - BK={self.bk_live:.1f}€")
                         tout_win = True
                     else:
-                        # Mode 18N : arrÃªter
+                        # Mode 18N : arrêter
                         tout_win = True
             
             if tout_win:
-                # SESSION TERMINÃ‰E - ne pas prÃ©parer de mise
+                # SESSION TERMINÉE - ne pas préparer de mise
                 prepare_next = False
                 
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ‰ SESSION COMPLÃˆTE!")
-                print(f"  BK finale: {self.bk_live:.1f} (dÃ©part: {self.bk_start:.1f})")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎉 SESSION COMPLÈTE!")
+                print(f"  BK finale: {self.bk_live:.1f} (départ: {self.bk_start:.1f})")
                 print(f"  Gain total: {self.obj_total:.1f}")
                 print(f"  Impacts: S1={self.all_session_impacts[0]:.1f}% | S2={self.all_session_impacts[1]:.1f}% | S3={self.all_session_impacts[2]:.1f}%")
                 
@@ -2555,29 +2555,29 @@ class Calculator(tk.Tk):
                 bk_start_session = self.bk_start
                 obj_pct_session = self.obj_pct
                 
-                # âš ï¸ IMPORTANT : Enregistrer la session MAINTENANT
+                # ⚠️ IMPORTANT : Enregistrer la session MAINTENANT
                 self._log_full_session()
                 
-                # IncrÃ©menter le compteur si c'est le mÃªme casino
+                # Incrémenter le compteur si c'est le même casino
                 if self.last_session_casino_idx == self.cur_casino_idx:
                     self.consecutive_session_count += 1
                 else:
                     self.consecutive_session_count = 1
                     self.last_session_casino_idx = self.cur_casino_idx
                 
-                # NumÃ©ro de la prochaine session (commence Ã  2)
+                # Numéro de la prochaine session (commence à 2)
                 next_session_num = self.consecutive_session_count + 1
                 
-                # Texte pour le numÃ©ro : "deuxiÃ¨me", "troisiÃ¨me", "quatriÃ¨me", etc.
+                # Texte pour le numéro : "deuxième", "troisième", "quatrième", etc.
                 session_numbers = {
-                    2: "deuxiÃ¨me", 3: "troisiÃ¨me", 4: "quatriÃ¨me", 5: "cinquiÃ¨me",
-                    6: "sixiÃ¨me", 7: "septiÃ¨me", 8: "huitiÃ¨me", 9: "neuviÃ¨me", 10: "dixiÃ¨me"
+                    2: "deuxième", 3: "troisième", 4: "quatrième", 5: "cinquième",
+                    6: "sixième", 7: "septième", 8: "huitième", 9: "neuvième", 10: "dixième"
                 }
-                session_text = session_numbers.get(next_session_num, f"{next_session_num}Ã¨me")
+                session_text = session_numbers.get(next_session_num, f"{next_session_num}ème")
                 
-                # CrÃ©er une fenÃªtre identique au messagebox
+                # Créer une fenêtre identique au messagebox
                 dialog = tk.Toplevel(self)
-                dialog.title("Session terminÃ©e")
+                dialog.title("Session terminée")
                 dialog.configure(bg="#f0f0f0")
                 dialog.resizable(False, False)
                 
@@ -2586,7 +2586,7 @@ class Calculator(tk.Tk):
                 except Exception:
                     pass
                 
-                # Bloquer l'interaction avec la fenÃªtre principale
+                # Bloquer l'interaction avec la fenêtre principale
                 dialog.transient(self)
                 dialog.grab_set()
                 
@@ -2594,21 +2594,21 @@ class Calculator(tk.Tk):
                 content = tk.Frame(dialog, bg="#f0f0f0")
                 content.pack(padx=20, pady=20)
                 
-                # Message texte normal - utiliser les valeurs sauvegardÃ©es
-                msg_part1 = f"âœ… SESSION TERMINÃ‰E!\n\n" \
-                           f"ðŸŽ° Casino: {casino_name}\n" \
-                           f"â±ï¸ DurÃ©e: {fmt_time(duration)}\n" \
-                           f"ðŸ’° BK dÃ©part: {bk_start_session:.1f}â‚¬\n" \
-                           f"ðŸŽ¯ Objectif: {obj_total_session:.1f}â‚¬ ({obj_pct_session:.1f}%)\n" \
-                           f"ðŸ’¼ BK finale: {bk_finale_session:.1f}â‚¬\n" \
-                           f"ðŸ“Š Gain: +{obj_total_session:.1f}â‚¬\n" \
-                           f"ðŸ’¥ Impact total: {total_impact:.1f}%\n\n" \
-                           f"Voulez-vous dÃ©marrer une "
+                # Message texte normal - utiliser les valeurs sauvegardées
+                msg_part1 = f"✅ SESSION TERMINÉE!\n\n" \
+                           f"🎰 Casino: {casino_name}\n" \
+                           f"⏱️ Durée: {fmt_time(duration)}\n" \
+                           f"💰 BK départ: {bk_start_session:.1f}€\n" \
+                           f"🎯 Objectif: {obj_total_session:.1f}€ ({obj_pct_session:.1f}%)\n" \
+                           f"💼 BK finale: {bk_finale_session:.1f}€\n" \
+                           f"📊 Gain: +{obj_total_session:.1f}€\n" \
+                           f"💥 Impact total: {total_impact:.1f}%\n\n" \
+                           f"Voulez-vous démarrer une "
                 
                 tk.Label(content, text=msg_part1, bg="#f0f0f0", 
                         font=("Segoe UI", 9), justify="left").pack()
                 
-                # TEXTE STYLISÃ‰ : deuxiÃ¨me session en gras italique 14
+                # TEXTE STYLISÉ : deuxième session en gras italique 14
                 tk.Label(content, text=f"{session_text} session", bg="#f0f0f0",
                         font=("Segoe UI", 14, "bold italic")).pack()
                 
@@ -2642,12 +2642,12 @@ class Calculator(tk.Tk):
                 y = self.winfo_y() + (self.winfo_height() - h) // 2
                 dialog.geometry(f"+{x}+{y}")
                 
-                # Attendre la rÃ©ponse
+                # Attendre la réponse
                 self.wait_window(dialog)
                 
-                # Traiter la rÃ©ponse
+                # Traiter la réponse
                 if user_choice[0]:
-                    # Oui : DÃ©marrer une nouvelle session avec la BK finale
+                    # Oui : Démarrer une nouvelle session avec la BK finale
                     self.current = self.from_float(bk_finale_session)
                     self.refresh_display()
                     self.after(100, self.on_go)
@@ -2660,21 +2660,21 @@ class Calculator(tk.Tk):
                     return
 
         if not prepare_next:
-            # Ne pas prÃ©parer la mise, on a changÃ© de session
+            # Ne pas préparer la mise, on a changé de session
             self.refresh_display()
             return
 
         next_stake = self.next_stake()
         display_stake, table_stake = self._prepare_stake(next_stake)
         
-        # Capturer l'Ã©tat AVANT de mettre la mise sur table
+        # Capturer l'état AVANT de mettre la mise sur table
         after_pocket = self.bk_live
         after_total_before_stake = self.bk_live + self.bk_on_table
         
         if table_stake > self.bk_live:
             messagebox.showwarning("Attention", 
-                f"Mise proposÃ©e ({self._fmt(display_stake)}) supÃ©rieure Ã  la BK disponible ({self._fmt(self.bk_live)})!\n\n" +
-                "Ajustement automatique Ã  la BK restante.")
+                f"Mise proposée ({self._fmt(display_stake)}) supérieure à la BK disponible ({self._fmt(self.bk_live)})!\n\n" +
+                "Ajustement automatique à la BK restante.")
             table_stake = self.bk_live
             display_stake = table_stake / 2 if self.num_mode == 24 else table_stake
         
@@ -2683,8 +2683,8 @@ class Calculator(tk.Tk):
         
         self._update_impact()
         
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] âœ… G | Poche: {before_pocket:.1f} â†’ {after_pocket:.1f} | Total: {before_total:.1f} â†’ {after_total:.1f}")
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ’° Nouvelle mise sur table: {table_stake:.1f} | Reste en poche: {self.bk_live:.1f} | Pertes: {self.session_losses[self.cur_session]:.1f} | Impact: {self.session_impact_pct[self.cur_session]:.2f}%")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ G | Poche: {before_pocket:.1f} → {after_pocket:.1f} | Total: {before_total:.1f} → {after_total:.1f}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 💰 Nouvelle mise sur table: {table_stake:.1f} | Reste en poche: {self.bk_live:.1f} | Pertes: {self.session_losses[self.cur_session]:.1f} | Impact: {self.session_impact_pct[self.cur_session]:.2f}%")
         
         self.current = self.from_float(display_stake)
         self.refresh_display()
@@ -2699,11 +2699,11 @@ class Calculator(tk.Tk):
         if stake <= 0 or R <= 0:
             return
         
-        # VÃ©rifier que la mise affichÃ©e correspond (en mode 24N, stake est par douzaine)
+        # Vérifier que la mise affichée correspond (en mode 24N, stake est par douzaine)
         expected_table = stake * 2 if self.num_mode == 24 else stake
         if abs(expected_table - self.bk_on_table) > 0.01:
             messagebox.showwarning("Attention", 
-                f"La mise affichÃ©e ({self._fmt(stake)}) ne correspond pas Ã  ce qui est sur la table ({self._fmt(self.bk_on_table)})!")
+                f"La mise affichée ({self._fmt(stake)}) ne correspond pas à ce qui est sur la table ({self._fmt(self.bk_on_table)})!")
             return
         
         self.push_state()
@@ -2717,7 +2717,7 @@ class Calculator(tk.Tk):
         
         after_total = self.bk_live + self.bk_on_table
 
-        # Ajouter la perte RÃ‰ELLE Ã  la session
+        # Ajouter la perte RÉELLE à la session
 
         if self.phase == 1:
             # Phase 1 : ajouter toute la perte
@@ -2740,7 +2740,7 @@ class Calculator(tk.Tk):
             messagebox.showerror("Bankroll insuffisante", 
                 f"Mise requise: {self._fmt(display_stake)}\n" +
                 f"BK disponible: {self._fmt(self.bk_live)}\n\n" +
-                "Impossible de continuer. Veuillez ajuster votre stratÃ©gie ou arrÃªter la session.")
+                "Impossible de continuer. Veuillez ajuster votre stratégie ou arrêter la session.")
             table_stake = self.bk_live
             display_stake = table_stake / 2 if self.num_mode == 24 else table_stake
         
@@ -2749,9 +2749,9 @@ class Calculator(tk.Tk):
         
         division_effectuee = self._update_impact()
         
-        # Si division effectuÃ©e, recalculer la mise avec les nouvelles valeurs
+        # Si division effectuée, recalculer la mise avec les nouvelles valeurs
         if division_effectuee:
-            # RÃ©cupÃ©rer l'argent de la table
+            # Récupérer l'argent de la table
             self.bk_live = self._r01(self.bk_live + self.bk_on_table)
             self.bk_on_table = 0.0
             
@@ -2763,15 +2763,15 @@ class Calculator(tk.Tk):
                 messagebox.showerror("Bankroll insuffisante", 
                     f"Mise requise: {self._fmt(display_stake)}\n" +
                     f"BK disponible: {self._fmt(self.bk_live)}\n\n" +
-                    "Impossible de continuer. Veuillez ajuster votre stratÃ©gie ou arrÃªter la session.")
+                    "Impossible de continuer. Veuillez ajuster votre stratégie ou arrêter la session.")
                 table_stake = self.bk_live
                 display_stake = table_stake / 2 if self.num_mode == 24 else table_stake
             
             self.bk_live = self._r01(self.bk_live - table_stake)
             self.bk_on_table = self._r01(table_stake)
         
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] âŒ P | Poche: {before_pocket:.1f} (inchangÃ©e) | Total: {before_total:.1f} â†’ {after_total:.1f} | Perte: {lost_amount:.1f}")
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ’° Nouvelle mise sur table: {self.bk_on_table:.1f} | Reste en poche: {self.bk_live:.1f} | Pertes: {self.session_losses[self.cur_session]:.1f} | Impact: {self.session_impact_pct[self.cur_session]:.2f}%")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ P | Poche: {before_pocket:.1f} (inchangée) | Total: {before_total:.1f} → {after_total:.1f} | Perte: {lost_amount:.1f}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 💰 Nouvelle mise sur table: {self.bk_on_table:.1f} | Reste en poche: {self.bk_live:.1f} | Pertes: {self.session_losses[self.cur_session]:.1f} | Impact: {self.session_impact_pct[self.cur_session]:.2f}%")
         
         self.current = self.from_float(display_stake)
         self.refresh_display()
@@ -2785,7 +2785,7 @@ class Calculator(tk.Tk):
         
         snap = self.state_stack.pop()
         self.restore(snap)
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] â†¶ UNDO")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] ↶ UNDO")
         
         if getattr(self, 'stats_win', None) and self.stats_win.winfo_exists():
             self.stats_win.update_stats_ui()
@@ -2816,13 +2816,13 @@ class Calculator(tk.Tk):
 
         self.session_losses = [0.0, 0.0, 0.0]
         self.session_impact_pct = [0.0, 0.0, 0.0]
-        self.all_session_impacts = []
+        self.all_session_impacts = [0.0] * 10  # Reset tous les impacts
         
-        # RÃ©initialiser le compteur de sessions consÃ©cutives
+        # Réinitialiser le compteur de sessions consécutives
         self.consecutive_session_count = 0
         self.last_session_casino_idx = None
         
-        self.casino_var.set("âš ï¸ SÃ‰LECTIONNER CASINO")
+        self.casino_var.set("⚠️ SÉLECTIONNER CASINO")
         self.cur_casino_idx = None
         self._update_combo_color()
 
@@ -2832,13 +2832,13 @@ class Calculator(tk.Tk):
         self.update_kb_lock_ui()
         self.refresh_display()
         
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”„ RESET")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔄 RESET")
 
     def toggle_kb_lock(self):
         self.kb_unlocked = not self.kb_unlocked
         self.update_kb_lock_ui()
         self.refresh_display()
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ” Clavier {'dÃ©verrouillÃ©' if self.kb_unlocked else 'verrouillÃ©'}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔐 Clavier {'déverrouillé' if self.kb_unlocked else 'verrouillé'}")
 
     def update_kb_lock_ui(self):
         self.btn_kb.config(bg=(VIOLET_UNLOCK if self.kb_unlocked else ACCENT_GREY))
@@ -2855,20 +2855,20 @@ class Calculator(tk.Tk):
     def toggle_compact(self):
         self._compact = not self._compact
         self.apply_mode_sizes()
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ“± Mode {'compact' if self._compact else 'complet'}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 📱 Mode {'compact' if self._compact else 'complet'}")
 
     def toggle_num_mode(self):
         if self.session_mode:
-            messagebox.showinfo("Mode verrouillÃ©", "Le mode est verrouillÃ© pendant la session.")
+            messagebox.showinfo("Mode verrouillé", "Le mode est verrouillé pendant la session.")
             return
         self.num_mode = 24 if self.num_mode == 18 else 18
         self.btn_stat.config(text=f"{self.num_mode}N")
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸŽ¯ Mode {self.num_mode} numÃ©ros")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎯 Mode {self.num_mode} numéros")
 
     def _prepare_stake(self, base_stake):
-        """PrÃ©pare la mise : retourne (display_stake, table_stake)
+        """Prépare la mise : retourne (display_stake, table_stake)
         display_stake = ce qu'on affiche (mise par douzaine)
-        table_stake = ce qu'on met sur table (Ã— 2 en mode 24N)
+        table_stake = ce qu'on met sur table (× 2 en mode 24N)
         """
         display_stake = base_stake
         if self.num_mode == 24:
@@ -2878,72 +2878,70 @@ class Calculator(tk.Tk):
         return display_stake, table_stake
     
     def _check_and_divide_losses(self):
-        """VÃ©rifie si un palier d'impact est atteint et divise les pertes si nÃ©cessaire.
+        """Vérifie si un palier d'impact est atteint et divise les pertes si nécessaire.
         Modes 18N et 24N. Paliers: -2%, -4%, -6%, -8%, -10%...
-        RÃˆGLE: Toujours diviser sur exactement 4 sessions.
+        RÈGLE: Toujours diviser sur exactement 4 sessions.
         """
         # Trouver la pire session
         worst_impact = min(self.session_impact_pct)
         
-        # VÃ©rifier si on a atteint ou dÃ©passÃ© le prochain palier
+        # Vérifier si on a atteint ou dépassé le prochain palier
         if worst_impact <= self.next_threshold:
-            # Trouver quelle session a dÃ©clenchÃ©
+            # Trouver quelle session a déclenché
             triggered_session = self.session_impact_pct.index(worst_impact)
             triggered_value = self.sessions[triggered_session]
             triggered_abs_index = self.session_offset + triggered_session
             
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] ðŸ”€ DIVISION PERTES: S{triggered_session+1} a atteint {worst_impact:.1f}% (seuil {self.next_threshold:.1f}%)")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔀 DIVISION PERTES: S{triggered_session+1} a atteint {worst_impact:.1f}% (seuil {self.next_threshold:.1f}%)")
             
-            # Compter combien de sessions sont disponibles (session actuelle + sessions aprÃ¨s)
+            # Compter combien de sessions sont disponibles (session actuelle + sessions après)
             available_sessions = []
             for i in range(triggered_abs_index, self.active_sessions_count):
                 available_sessions.append(i)
             
             num_available = len(available_sessions)
             
-            # CrÃ©er des sessions supplÃ©mentaires pour atteindre 4 sessions
+            # Créer des sessions supplémentaires pour atteindre 4 sessions
             sessions_needed = 4 - num_available
             if sessions_needed > 0:
                 for _ in range(sessions_needed):
-                    if self.active_sessions_count < 999:  # UNLIMITED
+                    if self.active_sessions_count < 10:  # Max 10 sessions
                         self.active_sessions_count += 1
                         available_sessions.append(self.active_sessions_count - 1)
-                        while len(self.all_sessions) < self.active_sessions_count: self.all_sessions.append(0.0)
-                        while len(self.all_session_impacts) < self.active_sessions_count: self.all_session_impacts.append(0.0)
-                        print(f"[{datetime.now().strftime('%H:%M:%S')}]    â†’ Activation S{self.active_sessions_count}")
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}]    → Activation S{self.active_sessions_count}")
             
             # Maintenant on a exactement 4 sessions (ou le max possible)
             num_sessions_for_division = len(available_sessions)
             
-            # Diviser la valeur de la session dÃ©clenchÃ©e
+            # Diviser la valeur de la session déclenchée
             divided_amount = self._r01(triggered_value / num_sessions_for_division) if num_sessions_for_division > 0 else 0.1
             
-            print(f"[{datetime.now().strftime('%H:%M:%S')}]    â†’ Division {triggered_value:.1f}â‚¬ Ã· {num_sessions_for_division} sessions = {divided_amount:.1f}â‚¬ par session")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}]    → Division {triggered_value:.1f}€ ÷ {num_sessions_for_division} sessions = {divided_amount:.1f}€ par session")
             
             # Redistribuer sur les sessions disponibles
             for i in available_sessions:
                 if i == triggered_abs_index:
-                    # Session dÃ©clenchÃ©e: REMPLACER par la part
+                    # Session déclenchée: REMPLACER par la part
                     self.all_sessions[i] = divided_amount
                     if triggered_session < 3:
                         self.sessions[triggered_session] = divided_amount
                 else:
                     # Autres sessions: AJOUTER la part (ou initialiser si nouvelle session)
                     if self.all_sessions[i] == 0.0:
-                        # Nouvelle session crÃ©Ã©e
+                        # Nouvelle session créée
                         self.all_sessions[i] = divided_amount
                     else:
                         # Session existante
                         self.all_sessions[i] = self._r01(self.all_sessions[i] + divided_amount)
                     
-                    # Mettre Ã  jour sessions[] si dans la fenÃªtre affichÃ©e
+                    # Mettre à jour sessions[] si dans la fenêtre affichée
                     if self.session_offset <= i < self.session_offset + 3:
                         display_index = i - self.session_offset
                         self.sessions[display_index] = self.all_sessions[i]
             
-            # PrÃ©parer le prochain palier (-2% â†’ -4% â†’ -6%...)
+            # Préparer le prochain palier (-2% → -4% → -6%...)
             self.next_threshold -= 2.0
-            print(f"[{datetime.now().strftime('%H:%M:%S')}]    â†’ Prochain palier: {self.next_threshold:.1f}%")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}]    → Prochain palier: {self.next_threshold:.1f}%")
             
             return True
         
@@ -2963,7 +2961,7 @@ class Calculator(tk.Tk):
             self.on_comma()
         elif ch in ("+", "-", "*", "/"):
             if locked(): return
-            self.on_op(ch if ch != "*" else "Ã—")
+            self.on_op(ch if ch != "*" else "×")
         elif ch == "=" or event.keysym in ("Return", "KP_Enter"):
             if locked(): return
             self.on_equal()
@@ -2986,16 +2984,16 @@ class Calculator(tk.Tk):
 
 
     def _show_session_complete_dialog(self, casino_name, duration, total_impact, bk_finale, obj_total, bk_start, obj_pct):
-        """Affiche le popup de session terminÃ©e"""
+        """Affiche le popup de session terminée"""
         next_session_num = self.consecutive_session_count + 1
         session_numbers = {
-            2: "deuxiÃ¨me", 3: "troisiÃ¨me", 4: "quatriÃ¨me", 5: "cinquiÃ¨me",
-            6: "sixiÃ¨me", 7: "septiÃ¨me", 8: "huitiÃ¨me", 9: "neuviÃ¨me", 10: "dixiÃ¨me"
+            2: "deuxième", 3: "troisième", 4: "quatrième", 5: "cinquième",
+            6: "sixième", 7: "septième", 8: "huitième", 9: "neuvième", 10: "dixième"
         }
-        session_text = session_numbers.get(next_session_num, f"{next_session_num}Ã¨me")
+        session_text = session_numbers.get(next_session_num, f"{next_session_num}ème")
         
         dialog = tk.Toplevel(self)
-        dialog.title("Session terminÃ©e")
+        dialog.title("Session terminée")
         dialog.configure(bg="#f0f0f0")
         dialog.resizable(False, False)
         
@@ -3010,7 +3008,7 @@ class Calculator(tk.Tk):
         content = tk.Frame(dialog, bg="#f0f0f0")
         content.pack(padx=20, pady=20)
         
-        msg = f"âœ… SESSION TERMINÃ‰E!\n\nðŸŽ° Casino: {casino_name}\nâ±ï¸ DurÃ©e: {fmt_time(duration)}\nðŸ’° BK dÃ©part: {bk_start:.1f}â‚¬\nðŸŽ¯ Objectif: {obj_total:.1f}â‚¬ ({obj_pct:.1f}%)\nðŸ’¼ BK finale: {bk_finale:.1f}â‚¬\nðŸ“Š Gain: +{obj_total:.1f}â‚¬\nðŸ’¥ Impact total: {total_impact:.1f}%\n\nVoulez-vous dÃ©marrer une "
+        msg = f"✅ SESSION TERMINÉE!\n\n🎰 Casino: {casino_name}\n⏱️ Durée: {fmt_time(duration)}\n💰 BK départ: {bk_start:.1f}€\n🎯 Objectif: {obj_total:.1f}€ ({obj_pct:.1f}%)\n💼 BK finale: {bk_finale:.1f}€\n📊 Gain: +{obj_total:.1f}€\n💥 Impact total: {total_impact:.1f}%\n\nVoulez-vous démarrer une "
         
         tk.Label(content, text=msg, bg="#f0f0f0", font=("Segoe UI", 9), justify="left").pack()
         tk.Label(content, text=f"{session_text} session", bg="#f0f0f0", font=("Segoe UI", 14, "bold italic")).pack()
@@ -3066,14 +3064,14 @@ def main():
                 f.write(f"Erreur: {e}\n\n")
                 f.write(traceback.format_exc())
                 f.write(f"{'='*60}\n")
-            print(f"\nâŒ Erreur fatale enregistrÃ©e dans: {crash_log}")
+            print(f"\n❌ Erreur fatale enregistrée dans: {crash_log}")
         except Exception:
             pass
         
         try:
             messagebox.showerror("Erreur fatale", f"Une erreur s'est produite:\n\n{e}")
         except Exception:
-            print(f"\nâŒ Erreur fatale: {e}")
+            print(f"\n❌ Erreur fatale: {e}")
 
 
 if __name__ == "__main__":
