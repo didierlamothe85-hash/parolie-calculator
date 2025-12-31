@@ -2106,7 +2106,7 @@ class Calculator(tk.Tk):
                     self.refresh_display()
                     tout_win = True
                     prepare_next = False  # Ne pas préparer de mise suivante
-                if self.num_mode == 24 and not objectif_atteint:
+                elif self.num_mode == 24 and not objectif_atteint:
                     # Mode 24N : RECALCULER seulement si sessions supplémentaires actives
                     if remaining <= 0.0 and self.active_sessions_count > 3:
                         objectif_restant = max(0.1, self.bk_target - self.bk_live)
