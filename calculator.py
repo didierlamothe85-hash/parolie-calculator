@@ -23,7 +23,7 @@ WIN_W = 246
 PAD_OUT_X = 4
 PAD_OUT_TOP = 7
 PAD_OUT_BETWEEN = 4
-DISP_H = 104
+DISP_H = 124  # +20px pour ligne MIN
 DISP_BD = 2
 CELL_W = 56
 CELL_H = 48
@@ -65,8 +65,7 @@ HISTORY_WINDOW_WIDTH = 409    # Largeur fixée
 HISTORY_WINDOW_HEIGHT = 439   # Hauteur fixée
 # ======================================================================
 
-def ceil_0_1(x):
-    return 0.0 if x <= 0 else math.ceil(x * 10) / 10.0
+# ceil_0_1 remplacée par Calculator.ceil_to_min()
 
 def spacer_size():
     avail = SHELL_W - 4 * CELL_W
@@ -883,7 +882,7 @@ class SimulatorWindow(tk.Toplevel):
         
         for day in range(365):
             date = start_date + timedelta(days=day)
-            obj = ceil_0_1(current_capital * (pct / 100.0))
+            obj = self.ceil_to_min_static(current_capital * (pct / 100.0, pct_step))
             new_capital = round(current_capital + obj, 1)
             
             # Jour de la semaine
@@ -1082,6 +1081,23 @@ class Calculator(tk.Tk):
         """Arrondit un nombre à 0.1 (un dixième)"""
         return round(x, 1)
 
+    def ceil_to_min(self, x):
+        """Arrondit au multiple supérieur de table_min"""
+        if x <= 0:
+            return 0.0
+        multiplier = 1.0 / self.table_min
+        return math.ceil(x * multiplier) / multiplier
+    
+    @staticmethod
+    def ceil_to_min_static(x, table_min):
+        """Version statique pour simulateur"""
+        if x <= 0:
+            return 0.0
+        multiplier = 1.0 / table_min
+        return math.ceil(x * multiplier) / multiplier
+    
+
+
     def __init__(self):
         super().__init__()
         self.title("Calculatrice Personnalisée")
@@ -1115,6 +1131,7 @@ class Calculator(tk.Tk):
         self.kb_unlocked = True
 
         self.obj_pct = 2.0
+        self.table_min = 0.1  # Mise minimum table
         self.num_mode = 18  # 18N par défaut
 
         self.session_losses = [0.0, 0.0, 0.0]
@@ -1204,6 +1221,27 @@ class Calculator(tk.Tk):
         self.btn_obj_plus  = mk_min_btn("+",  lambda: self.adjust_obj_pct(+OBJ_PCT_STEP))
         self.btn_obj_plus.pack(side="right")
         self.btn_obj_minus.pack(side="right")
+        # Ligne MIN (mise minimum table)
+        min_row = tk.Frame(left, bg=DISPLAY_BG)
+        min_row.pack(fill="x")
+        self.min_label = tk.Label(min_row, text="MIN 0,1 €", bg=DISPLAY_BG, fg="#888888",
+                                  anchor="w", font=("Segoe UI", 8))
+        self.min_label.pack(side="left", fill="x", expand=True)
+        
+        self.btn_min_minus = tk.Button(min_row, text="−", command=lambda: self.adjust_table_min(-0.1),
+                             font=("Segoe UI", 9, "bold"),
+                             fg="#FFFFFF", bg=DISPLAY_BG,
+                             relief="flat", bd=0, highlightthickness=0,
+                             activeforeground="#FFFFFF", activebackground=DISPLAY_BG,
+                             padx=0, pady=0, width=2, cursor="hand2")
+        self.btn_min_plus = tk.Button(min_row, text="+", command=lambda: self.adjust_table_min(+0.1),
+                             font=("Segoe UI", 9, "bold"),
+                             fg="#FFFFFF", bg=DISPLAY_BG,
+                             relief="flat", bd=0, highlightthickness=0,
+                             activeforeground="#FFFFFF", activebackground=DISPLAY_BG,
+                             padx=0, pady=0, width=2, cursor="hand2")
+        self.btn_min_plus.pack(side="right")
+        self.btn_min_minus.pack(side="right")
 
         self.cib_label = tk.Label(left, text="CIB S1 0,0 → 0,0", bg=DISPLAY_BG, fg="#aaaaaa", anchor="w", font=("Segoe UI", 8))
         self.cib_label.pack(fill="x")
@@ -1394,7 +1432,7 @@ class Calculator(tk.Tk):
 
 
     def save_data(self):
-        data = {"casinos": self.casinos, "obj_pct": self.obj_pct}
+        data = {"casinos": self.casinos, "obj_pct": self.obj_pct, "table_min": self.table_min}
         try:
             with open(DATA_PATH, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -1419,12 +1457,29 @@ class Calculator(tk.Tk):
                 except Exception:
                     p = self.obj_pct
                 self.obj_pct = max(OBJ_PCT_MIN, min(OBJ_PCT_MAX, round(p, 1)))
+                t = data.get("table_min", self.table_min)
+                try:
+                    t = float(t)
+                except Exception:
+                    t = self.table_min
+                self.table_min = max(0.1, min(10.0, round(t, 1)))
             except Exception as e:
                 print(f"Erreur chargement: {e}")
 
     def on_close(self):
         self.save_data()
         self.destroy()
+
+
+    def adjust_table_min(self, delta):
+        """Ajuster la mise minimum table"""
+        if self.session_mode:
+            return
+        new_val = self.table_min + delta
+        # Limites : 0.1 à 10.0
+        self.table_min = max(0.1, min(10.0, round(new_val, 1)))
+        self.save_data()
+        self.refresh_display()
 
     def adjust_obj_pct(self, delta):
         if self.session_mode:
@@ -1442,7 +1497,7 @@ class Calculator(tk.Tk):
         try:
             current_bk = self.to_float(self.current)
             if current_bk > 0:
-                preview_obj = ceil_0_1(current_bk * (self.obj_pct / 100.0))
+                preview_obj = self.ceil_to_min_static(current_bk * (self.obj_pct / 100.0, pct_step))
                 self.obj_label.config(text=f"OBJ {self._fmt(preview_obj)} ({self.obj_pct:.1f}%)")
             else:
                 self.obj_label.config(text=f"OBJ 0,0 ({self.obj_pct:.1f}%)")
@@ -1506,6 +1561,7 @@ class Calculator(tk.Tk):
             self.bk_label.config(text="", fg="#bbbbbb")
 
         self.obj_label.config(text=f"OBJ {self._fmt(self.obj_total if self.session_mode else 0)} ({self.obj_pct:.1f}%)")
+        self.min_label.config(text=f"MIN {self._fmt(self.table_min)} €")
         
         # MODIFICATION 6 : Mettre à jour l'affichage avant GO
         if not self.session_mode:
@@ -1527,9 +1583,12 @@ class Calculator(tk.Tk):
         self.update_obj_controls_state()
 
     def update_obj_controls_state(self):
+        """Verrouiller/déverrouiller OBJ et MIN"""
         state = (tk.NORMAL if not self.session_mode else tk.DISABLED)
         self.btn_obj_minus.config(state=state)
         self.btn_obj_plus.config(state=state)
+        self.btn_min_minus.config(state=state)
+        self.btn_min_plus.config(state=state)
 
     def to_float(self, s):
         try:
@@ -1900,12 +1959,12 @@ class Calculator(tk.Tk):
             self.state_stack.pop()
             return
 
-        self.obj_total = ceil_0_1(self.bk_start * (self.obj_pct / 100.0))
+        self.obj_total = self.ceil_to_min(self.bk_start * (self.obj_pct / 100.0))
         self.bk_target = self._r01(self._r01(self.bk_start) + self._r01(self.obj_total))
 
-        s1 = ceil_0_1(self.obj_total / 3.0)
+        s1 = self.ceil_to_min(self.obj_total / 3.0)
         rem = self._r01(self._r01(self.obj_total) - self._r01(s1))
-        s2 = ceil_0_1(rem / 2.0) if rem > 0 else 0.0
+        s2 = self.ceil_to_min(rem / 2.0) if rem > 0 else 0.0
         s3 = max(0.0, self._r01(self._r01(self.obj_total) - self._r01(s1) - self._r01(s2)))
         
         if self.num_mode == 24:
@@ -1991,7 +2050,7 @@ class Calculator(tk.Tk):
         R = self.sessions[self.cur_session]
         if R <= 0:
             return 0.0
-        return ceil_0_1(R / 3.0) if self.phase == 1 else ceil_0_1(R)
+        return self.ceil_to_min(R / 3.0) if self.phase == 1 else self.ceil_to_min(R)
 
     def _update_impact(self):
         i = self.cur_session
@@ -2077,7 +2136,7 @@ class Calculator(tk.Tk):
                 remaining = round(max(0.0, R - gain_net), 1)
             else:
                 # Mode 18N : logique originale (soustraire s1)
-                s1 = ceil_0_1(R / 3.0)
+                s1 = self.ceil_to_min(R / 3.0)
                 remaining = round(max(0.0, R - s1), 1)
             
             self.sessions[self.cur_session] = remaining
